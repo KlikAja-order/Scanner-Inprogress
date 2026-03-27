@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SLA • Staging Store BLHR0</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap');
+        :root { --accent: #10b981; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050505; color: #ffffff; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-dark { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(30px); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .scanner-mask { background: rgba(0,0,0,0.7); mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="white"/><rect x="10%" y="25%" width="80%" height="40%" rx="40" fill="black"/></svg>'); -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="white"/><rect x="10%" y="25%" width="80%" height="40%" rx="40" fill="black"/></svg>'); }
+        .viewfinder { position: absolute; top: 25%; left: 10%; width: 80%; height: 40%; border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; }
+        .scan-line { position: absolute; left: 5%; width: 90%; height: 3px; background: var(--accent); box-shadow: 0 0 25px var(--accent); animation: moveLine 1.5s ease-in-out infinite; }
+        @keyframes moveLine { 0%, 100% { top: 15%; opacity: 0.2; } 50% { top: 85%; opacity: 1; } }
+        .sheet-up { transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .sheet-up.active { transform: translateY(0); }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="pt-14 pb-6 px-8 flex justify-center items-center z-10 bg-black/40 border-b border-white/5">
+        <div class="flex flex-col items-center gap-1">
+            <h1 class="text-xl font-extrabold tracking-tighter leading-none uppercase text-white">Inprogress</h1>
+            <p class="text-[9px] font-bold text-emerald-500 tracking-[3px] uppercase">Staging Store BLHR0</p>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto px-6 pb-32">
+        <div class="grid grid-cols-3 gap-3 my-8">
+            <div class="glass p-5 rounded-[2rem] text-center border-b-4 border-white/5">
+                <p id="total-today" class="text-3xl font-black tracking-tighter">0</p>
+                <p class="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-1">Total Inprogress</p>
+            </div>
+            <div class="glass p-5 rounded-[2rem] text-center border-b-4 border-emerald-500/40">
+                <p id="scanned-count" class="text-3xl font-black text-emerald-400 tracking-tighter">0</p>
+                <p class="text-[8px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">AWB Terscan</p>
+            </div>
+            <div class="glass p-5 rounded-[2rem] text-center border-b-4 border-rose-500/40">
+                <p id="pending-count" class="text-3xl font-black text-rose-500 tracking-tighter">0</p>
+                <p class="text-[8px] font-bold text-rose-500/60 uppercase tracking-widest mt-1">Belum Terscan</p>
+            </div>
+        </div>
+        <div id="data-list" class="space-y-3"></div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 glass-dark pb-10 pt-4 px-10 flex items-center justify-between z-50">
+        <button onclick="toggleSheet('district-sheet', true)" class="flex flex-col items-center gap-1.5 opacity-50">
+            <svg class="w-6 h-6" viewBox="0 0 24 24"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3H19C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" fill="currentColor"/></svg>
+            <span class="text-[8px] font-black uppercase">Filter</span>
+        </button>
+        <button onclick="startScanner()" class="w-20 h-20 bg-white text-black rounded-full flex items-center justify-center -translate-y-6 shadow-2xl active:scale-90 transition-all">
+            <svg class="w-10 h-10" viewBox="0 0 24 24"><path d="M4,4H7V2H4A2,2 0 0,0 2,4V7H4M20,2H17V4H20V7H22V4A2,2 0 0,0 20,2M4,20H7V22H4A2,2 0 0,1 2,20V17H4M20,20V17H22V20A2,2 0 0,1 20,22H17V20M12,15A3,3 0 1,0 12,9A3,3 0 0,0 12,15M12,7A5,5 0 1,1 12,17A5,5 0 0,1 12,7Z" fill="currentColor"/></svg>
+        </button>
+        <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-1.5 opacity-50">
+            <svg class="w-6 h-6" viewBox="0 0 24 24"><path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" fill="currentColor"/></svg>
+            <span class="text-[8px] font-black uppercase">Admin</span>
+        </button>
+    </nav>
+
+    <div id="scanner-ui" class="fixed inset-0 z-[100] bg-black hidden">
+        <video id="video" class="w-full h-full object-cover" playsinline autoplay muted></video>
+        <div class="absolute inset-0 scanner-mask pointer-events-none"></div>
+        <div class="viewfinder pointer-events-none"><div class="scan-line"></div></div>
+        <div class="absolute top-14 left-8 right-8 flex justify-between">
+            <button onclick="stopScanner()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center">✕</button>
+            <div class="flex gap-2">
+                <button onclick="toggleManualInput(true)" class="px-6 glass rounded-2xl text-[10px] font-black uppercase tracking-widest">Input AWB MANUAL</button>
+                <button onclick="toggleTorch()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center">🔦</button>
+            </div>
+        </div>
+        <div id="manual-overlay" class="absolute inset-0 bg-black/95 hidden flex flex-col items-center justify-center px-10">
+            <input type="text" id="manual-field" placeholder="INPUT RESI" class="w-full bg-transparent border-b-2 border-white/20 py-4 text-3xl font-black text-center outline-none uppercase">
+            <div class="flex gap-4 mt-12 w-full">
+                <button onclick="toggleManualInput(false)" class="flex-1 py-5 glass rounded-2xl font-bold text-xs uppercase">Batal</button>
+                <button onclick="processManualEntry()" class="flex-1 py-5 bg-white text-black rounded-2xl font-black text-xs uppercase">Proses</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-sheet" class="fixed inset-0 z-[120] bg-black/60 hidden flex flex-col justify-end" onclick="closeResult()">
+        <div id="result-modal" class="w-full bg-[#0a0a0a] rounded-t-[3rem] p-10 pb-16 sheet-up shadow-[0_-20px_50px_rgba(0,0,0,0.5)]" onclick="event.stopPropagation()">
+            <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-10"></div>
+            <div class="flex items-center gap-6 mb-10">
+                <div id="res-status-icon" class="w-20 h-20 rounded-3xl flex items-center justify-center text-5xl"></div>
+                <div>
+                    <p id="res-status-text" class="text-[10px] font-black uppercase tracking-[3px] opacity-40"></p>
+                    <h2 id="res-awb" class="text-3xl font-black tracking-tighter font-mono mt-1"></h2>
+                </div>
+            </div>
+            <div id="res-content" class="space-y-4 mb-10"></div>
+            <button onclick="closeResult()" class="w-full py-6 bg-white text-black rounded-[2rem] font-black text-xs uppercase tracking-widest active:scale-95 transition-all">Lanjut Scan</button>
+        </div>
+    </div>
+
+    <div id="district-sheet" class="fixed inset-0 z-[110] bg-black/80 hidden" onclick="toggleSheet('district-sheet', false)">
+        <div class="absolute bottom-0 left-0 right-0 bg-[#0a0a0a] rounded-t-[3rem] p-10 sheet-up max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-8"></div>
+            
+            <div class="mb-8">
+                <h3 class="font-black text-[9px] uppercase tracking-[3px] mb-4 opacity-40">Status Paket</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setStatusFilter('all')" id="f-all" class="py-4 glass rounded-2xl text-[10px] font-black uppercase border border-white/10">Semua</button>
+                    <button onclick="setStatusFilter('scanned')" id="f-scanned" class="py-4 glass rounded-2xl text-[10px] font-black uppercase">Sudah Scan</button>
+                    <button onclick="setStatusFilter('pending')" id="f-pending" class="py-4 glass rounded-2xl text-[10px] font-black uppercase">Belum Scan</button>
+                </div>
+            </div>
+
+            <h3 class="font-black text-[9px] uppercase tracking-[3px] mb-4 opacity-40">Kecamatan</h3>
+            <div id="district-options" class="grid grid-cols-2 gap-3 overflow-y-auto mb-8 pr-2"></div>
+            
+            <button onclick="toggleSheet('district-sheet', false)" class="w-full py-6 glass rounded-[2rem] font-black text-xs uppercase tracking-widest">Tutup</button>
+        </div>
+    </div>
+
+    <div id="admin-sheet" class="fixed inset-0 z-[110] bg-black/80 hidden" onclick="toggleSheet('admin-sheet', false)">
+        <div class="absolute bottom-0 left-0 right-0 bg-[#0a0a0a] rounded-t-[3rem] p-10 sheet-up" onclick="event.stopPropagation()">
+            <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-10"></div>
+            <div class="space-y-4 mb-8">
+                <button onclick="document.getElementById('file-upload').click(); toggleSheet('admin-sheet', false);" class="w-full py-6 glass rounded-2xl flex items-center justify-center gap-3 font-bold text-xs uppercase tracking-widest">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M14,2L20,8V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2H14M18,20V9H13V4H6V20H18M12,19L8,15H11V11H13V15H16L12,19Z" fill="currentColor"/></svg>
+                    Update Cloud (CSV)
+                </button>
+                <button onclick="resetCloudData()" class="w-full py-6 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl flex items-center justify-center gap-3 font-bold text-xs uppercase tracking-widest">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19V4M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" fill="currentColor"/></svg>
+                    Reset Semua Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="file-upload" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXxi0dOc3Otq_bUmUDnaOGiMEuBvTOi44",
+            authDomain: "sla-core-scanner.firebaseapp.com",
+            databaseURL: "https://sla-core-scanner-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sla-core-scanner",
+            storageBucket: "sla-core-scanner.firebasestorage.app",
+            messagingSenderId: "378895449978",
+            appId: "1:378895449978:web:fb8fee0e13f63cd8f720c3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let allData = [], selectedDistricts = new Set(), statusFilter = 'all', isScanning = false, videoStream = null;
+
+        // --- ULTRA LOUD AUDIO (KERAS SEKALI) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playAlert(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(3.0, audioCtx.currentTime); // OVER-BOOST VOLUME
+            if(type === 'success') {
+                osc.type = 'square'; // Karakter suara tajam
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }
+        }
+
+        // --- FILTER LOGIC ---
+        function setStatusFilter(f) {
+            statusFilter = f;
+            ['f-all', 'f-scanned', 'f-pending'].forEach(id => {
+                document.getElementById(id).className = id === `f-${f}` ? 'py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase' : 'py-4 glass rounded-2xl text-[10px] font-black uppercase';
+            });
+            renderList();
+        }
+
+        db.ref('logistic_data').on('value', snap => {
+            const val = snap.val();
+            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
+            renderStats(); renderList(); renderDistricts();
+            if(statusFilter === 'all') setStatusFilter('all');
+        });
+
+        function renderList() {
+            const container = document.getElementById('data-list');
+            let filtered = allData;
+            if(statusFilter === 'scanned') filtered = filtered.filter(r => r._scanned);
+            if(statusFilter === 'pending') filtered = filtered.filter(r => !r._scanned);
+            if(selectedDistricts.size > 0) filtered = filtered.filter(r => selectedDistricts.has(r.receiver_district));
+            
+            container.innerHTML = filtered.slice(0, 50).map(r => `
+                <div class="glass p-6 rounded-[2rem] flex justify-between items-center ${r._scanned ? 'border-l-4 border-emerald-500 opacity-100' : 'opacity-25'}">
+                    <div>
+                        <p class="font-mono text-sm font-bold tracking-tight">${r.waybill}</p>
+                        <p class="text-[9px] font-bold opacity-40 uppercase mt-1">${r.receiver_name || '-'}</p>
+                    </div>
+                    <span class="text-[9px] font-black text-emerald-500 uppercase bg-emerald-500/10 px-3 py-1.5 rounded-full">${r.receiver_district}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderDistricts() {
+            const dists = [...new Set(allData.map(r => r.receiver_district))].sort();
+            const container = document.getElementById('district-options');
+            container.innerHTML = dists.map(d => `<div onclick="toggleDistrict('${d}')" class="p-5 glass rounded-2xl text-center text-[10px] font-black uppercase ${selectedDistricts.has(d) ? 'bg-white text-black shadow-lg shadow-white/5' : ''}">${d}</div>`).join('');
+        }
+        function toggleDistrict(d) { selectedDistricts.has(d) ? selectedDistricts.delete(d) : selectedDistricts.add(d); renderList(); renderDistricts(); }
+        function renderStats() {
+            const scn = allData.filter(r => r._scanned).length;
+            document.getElementById('total-today').textContent = allData.length;
+            document.getElementById('scanned-count').textContent = scn;
+            document.getElementById('pending-count').textContent = allData.length - scn;
+        }
+
+        // --- SCANNER ---
+        async function startScanner() {
+            document.getElementById('scanner-ui').classList.remove('hidden');
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                document.getElementById('video').srcObject = videoStream;
+                isScanning = true; requestAnimationFrame(scanLoop);
+            } catch (e) { stopScanner(); }
+        }
+        async function scanLoop() {
+            if (!isScanning) return;
+            try {
+                const detector = new BarcodeDetector({ formats: ['code_128', 'qr_code'] });
+                const barcodes = await detector.detect(document.getElementById('video'));
+                if (barcodes.length > 0) { handleProcess(barcodes[0].rawValue); return; }
+            } catch (e) {}
+            setTimeout(() => requestAnimationFrame(scanLoop), 80);
+        }
+        function handleProcess(code) {
+            const match = allData.find(r => r.waybill === code);
+            if (match) {
+                db.ref(`logistic_data/${match.fbKey}`).update({ _scanned: true });
+                playAlert('success'); showResult(true, match);
+            } else {
+                playAlert('error'); showResult(false, { waybill: code });
+            }
+            isScanning = false;
+        }
+        function showResult(success, data) {
+            const modal = document.getElementById('result-modal');
+            const icon = document.getElementById('res-status-icon');
+            icon.className = `w-20 h-20 rounded-3xl flex items-center justify-center text-5xl ${success ? 'bg-emerald-500 text-black' : 'bg-rose-500 text-white'}`;
+            icon.textContent = success ? '✓' : '✕';
+            document.getElementById('res-status-text').textContent = success ? 'Paket Ditemukan' : 'Paket Tidak Terdaftar';
+            document.getElementById('res-awb').textContent = data.waybill;
+            document.getElementById('res-content').innerHTML = success ? `
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <div><p class="text-[9px] font-black opacity-30 uppercase tracking-widest mb-1">Penerima</p><p class="text-lg font-bold text-white">${data.receiver_name}</p></div>
+                    <div class="h-[1px] bg-white/5"></div>
+                    <div><p class="text-[9px] font-black opacity-30 uppercase tracking-widest mb-1">Kecamatan</p><p class="text-lg font-bold text-emerald-400">${data.receiver_district}</p></div>
+                    <div class="h-[1px] bg-white/5"></div>
+                    <div><p class="text-[9px] font-black opacity-30 uppercase tracking-widest mb-1">Alamat</p><p class="text-xs font-semibold opacity-70">${data.receiver_address || '-'}</p></div>
+                </div>` : `<p class="text-center py-10 glass rounded-3xl opacity-40 font-black uppercase text-[10px] tracking-widest">Cek Kembali Resi</p>`;
+            document.getElementById('result-sheet').classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+            if (navigator.vibrate) navigator.vibrate(success ? [60, 40, 60] : [200, 100, 200]);
+        }
+        function closeResult() {
+            document.getElementById('result-modal').classList.remove('active');
+            setTimeout(() => { document.getElementById('result-sheet').classList.add('hidden'); if(!document.getElementById('scanner-ui').classList.contains('hidden')) startScanner(); }, 400);
+        }
+
+        // --- UTILS ---
+        function stopScanner() { isScanning = false; videoStream?.getTracks().forEach(t => t.stop()); document.getElementById('scanner-ui').classList.add('hidden'); }
+        function toggleManualInput(s) { document.getElementById('manual-overlay').classList.toggle('hidden', !s); if(s) document.getElementById('manual-field').focus(); }
+        function processManualEntry() { const v = document.getElementById('manual-field').value.trim(); if(v){ toggleManualInput(false); handleProcess(v); document.getElementById('manual-field').value=''; } }
+        function toggleTorch() { const t = videoStream?.getVideoTracks()[0]; if(t && 'torch' in t.getCapabilities()) t.applyConstraints({advanced:[{torch:!t.getSettings().torch}]}); }
+        function toggleSheet(id, s) { const el = document.getElementById(id); if(s) { el.classList.remove('hidden'); setTimeout(()=>el.querySelector('.sheet-up').classList.add('active'),10); } else { el.querySelector('.sheet-up').classList.remove('active'); setTimeout(()=>el.classList.add('hidden'),400); } }
+        function secureAdminMenu() { if(prompt("PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); }
+        function resetCloudData() { if(confirm("RESET DATABASE?")) { db.ref('logistic_data').set(null); toggleSheet('admin-sheet', false); } }
+        async function handleFileUpload(e) {
+            const file = e.target.files[0]; if(!file) return;
+            const text = await file.text();
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split('|').map(h => h.trim());
+            const dataObj = {};
+            lines.slice(1).forEach(l => {
+                const v = l.split('|'); let o = {};
+                headers.forEach((h, i) => o[h] = v[i]?.trim());
+                o._scanned = false; if(o.waybill) dataObj[o.waybill] = o;
+            });
+            await db.ref('logistic_data').set(dataObj);
+            alert("UPLOAD SUKSES!");
+        }
+    </script>
+</body>
+</html>

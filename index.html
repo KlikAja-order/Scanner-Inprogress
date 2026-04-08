@@ -27,7 +27,7 @@
             background: #0A0C12;
             background-image: radial-gradient(circle at 30% 10%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
         }
-        /* Glassmorphism Premium - Warna Profesional (Teal & Gold accent) */
+        /* Glassmorphism Premium */
         .glass-premium {
             background: rgba(18, 22, 32, 0.75);
             backdrop-filter: blur(16px);
@@ -45,7 +45,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Stat Card dengan aksen Teal */
+        /* Stat Card */
         .stat-card {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(20, 184, 166, 0.02));
             border-bottom: 2px solid rgba(20, 184, 166, 0.5);
@@ -58,28 +58,34 @@
             box-shadow: 0 4px 14px -5px rgba(20, 184, 166, 0.5);
             background: rgba(20, 184, 166, 0.12);
         }
-        /* Scanner Frame Premium */
+        /* Scanner Frame - Fixed Border Logic */
         .scan-frame-glow {
             position: absolute;
-            inset: 10%;
-            border: 1.5px solid rgba(20, 184, 166, 0.7);
-            border-radius: 56px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(20, 184, 166, 0.2);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            width: 280px;
+            height: 280px;
+            border: 2px solid #14b8a6;
+            border-radius: 24px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+            z-index: 10;
         }
         .scan-line-premium {
             position: absolute;
-            left: 8%;
-            width: 84%;
-            height: 2px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
             background: linear-gradient(90deg, transparent, #14b8a6, #5eead4, #14b8a6, transparent);
             border-radius: 4px;
             animation: scanFloat 2.2s ease-in-out infinite;
-            filter: drop-shadow(0 0 5px #14b8a6);
+            filter: drop-shadow(0 0 8px #14b8a6);
+            z-index: 11;
         }
         @keyframes scanFloat {
-            0% { top: 20%; opacity: 0.5; }
-            50% { top: 75%; opacity: 1; }
-            100% { top: 20%; opacity: 0.5; }
+            0% { top: 5%; opacity: 0.5; }
+            50% { top: 90%; opacity: 1; }
+            100% { top: 5%; opacity: 0.5; }
         }
         /* Modal Premium */
         .modal-premium {
@@ -112,31 +118,31 @@
         .custom-scroll::-webkit-scrollbar { width: 3px; }
         .custom-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
-        /* Input manual styling */
+        
+        /* Fixed Input Manual Contrast */
         .awb-input {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.15);
             border-bottom: 2px solid #14b8a6;
-            color: #f1f5f9;
+            color: #ffffff;
             letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
         .awb-input:focus {
             outline: none;
             border-bottom-color: #5eead4;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.2);
         }
         .awb-input::placeholder {
-            color: #64748b;
+            color: rgba(255,255,255,0.4);
             font-size: 12px;
         }
-        /* Warna teks selalu kontras */
-        .text-accent {
-            color: #14b8a6;
-        }
-        .border-accent {
-            border-color: #14b8a6;
-        }
-        .bg-accent {
-            background: #14b8a6;
+        .text-accent { color: #14b8a6; }
+        .border-accent { border-color: #14b8a6; }
+        .bg-accent { background: #14b8a6; }
+        
+        /* Video Aspect Overwrite */
+        #qr-reader video {
+            object-fit: cover !important;
         }
     </style>
 </head>
@@ -199,18 +205,23 @@
         </button>
         
         <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-0.5 text-slate-400 active:text-teal-400 transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             <span class="text-[7px] font-black uppercase">Admin</span>
         </button>
     </nav>
 
-    <!-- SCANNER UI - DENGAN HTML5QRCODE (ZXing) untuk scan lebih tajam -->
+    <!-- SCANNER UI -->
     <div id="scanner-ui" class="fixed inset-0 z-[100] bg-black hidden">
-        <div id="qr-reader" style="width: 100%; height: 100%;"></div>
-        <div class="scan-frame-glow pointer-events-none"></div>
-        <div class="scan-line-premium"></div>
+        <div id="qr-reader" class="w-full h-full"></div>
+        <!-- Overlays with fixed layout -->
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div class="scan-frame-glow">
+                <div class="scan-line-premium"></div>
+            </div>
+        </div>
+        
         <div class="absolute top-10 left-4 right-4 flex justify-between z-20">
-            <button onclick="stopScanner()" class="w-10 h-10 glass-premium rounded-xl backdrop-blur-xl flex items-center justify-center text-white text-lg border border-white/20">✕</button>
+            <button onclick="stopScanner()" class="w-10 h-10 glass-premium rounded-xl flex items-center justify-center text-white text-lg border border-white/20">✕</button>
             <div class="flex gap-2">
                 <button onclick="toggleManualInput(true)" class="px-4 h-10 glass-premium rounded-xl text-[9px] font-black uppercase tracking-widest border border-white/20">✎ TULIS</button>
                 <button id="torch-btn" onclick="toggleTorch()" class="w-10 h-10 glass-premium rounded-xl text-lg flex items-center justify-center">🔦</button>
@@ -221,10 +232,10 @@
         </div>
         
         <!-- MANUAL INPUT OVERLAY -->
-        <div id="manual-overlay" class="absolute inset-0 bg-[#0A0C12]/98 backdrop-blur-2xl hidden flex-col items-center justify-start pt-32 px-8 z-30">
+        <div id="manual-overlay" class="absolute inset-0 bg-[#0A0C12]/98 backdrop-blur-2xl hidden flex-col items-center justify-start pt-32 px-8 z-[110]">
             <div class="w-full max-w-sm">
                 <p class="text-[11px] font-black text-teal-400 uppercase tracking-[4px] text-center mb-6">INPUT RESI MANUAL</p>
-                <input type="text" id="manual-field" placeholder="Masukkan nomor resi / AWB" class="awb-input w-full bg-white/10 border-b-2 border-teal-500/70 py-4 text-xl font-mono font-bold text-center outline-none tracking-wider text-white rounded-lg px-3">
+                <input type="text" id="manual-field" placeholder="Masukkan nomor resi / AWB" class="awb-input w-full bg-white/20 border-b-2 border-teal-500 py-4 text-xl font-mono font-bold text-center outline-none tracking-wider text-white rounded-lg px-3">
                 <div class="flex gap-4 mt-10 w-full">
                     <button onclick="toggleManualInput(false)" class="flex-1 py-4 glass-premium rounded-xl font-bold text-sm text-white border border-white/10">BATAL</button>
                     <button onclick="processManualEntry()" class="flex-1 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-black text-sm uppercase shadow-xl">PROSES</button>
@@ -233,7 +244,7 @@
         </div>
     </div>
 
-    <!-- MODAL RESULT - Premium dengan kontras tinggi -->
+    <!-- MODAL RESULT -->
     <div id="result-sheet" class="fixed inset-0 z-[120] bg-black/85 hidden flex items-center justify-center p-5" onclick="closeResult()">
         <div id="result-modal" class="w-full max-w-md modal-premium rounded-3xl p-6 border border-white/20" onclick="event.stopPropagation()">
             <div id="res-status-icon" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-2xl"></div>
@@ -278,7 +289,7 @@
                 <button onclick="resetCloudData()" class="w-full py-5 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded-xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest">
                     🧨 RESET SEMUA DATA
                 </button>
-                <p class="text-[7px] text-center text-slate-500 mt-2">Format CSV: header dengan | (pipe) | waybill|receiver_name|receiver_address|receiver_district</p>
+                <p class="text-[7px] text-center text-slate-500 mt-2">Format CSV: header waybill|receiver_name|receiver_address|receiver_district</p>
             </div>
         </div>
     </div>
@@ -415,12 +426,13 @@
             else { districtBadge.classList.remove('hidden'); districtBadge.textContent = `${selectedDistricts.size} kecamatan`; }
         }
         
-        // ========== SCANNER UPGRADE dengan Html5QrCode (ZXing) ==========
+        // ========== SCANNER FIX ==========
         async function startScanner() {
             const scannerUi = document.getElementById('scanner-ui');
             scannerUi.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
+            // Clean up previous instance if any
             if (html5QrCode) {
                 try { await html5QrCode.stop(); } catch(e) {}
                 html5QrCode = null;
@@ -428,7 +440,7 @@
             
             html5QrCode = new Html5Qrcode("qr-reader");
             const config = {
-                fps: 15,
+                fps: 20,
                 qrbox: { width: 280, height: 280 },
                 aspectRatio: 1.0,
                 showTorchButton: false,
@@ -436,8 +448,6 @@
                     Html5QrcodeSupportedFormats.CODE_128,
                     Html5QrcodeSupportedFormats.CODE_39,
                     Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A,
                     Html5QrcodeSupportedFormats.QR_CODE
                 ]
             };
@@ -447,39 +457,47 @@
                     { facingMode: "environment" },
                     config,
                     (decodedText) => { if (isScannerActive) handleProcess(decodedText); },
-                    (errorMessage) => { console.warn(errorMessage); }
+                    () => {} // silent error for frame drops
                 );
                 isScannerActive = true;
             } catch (err) {
                 console.error("Gagal start kamera:", err);
                 stopScanner();
+                alert("Kamera tidak dapat diakses.");
             }
         }
         
         function stopScanner() {
             isScannerActive = false;
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().catch(e => console.warn);
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-ui').classList.add('hidden');
+                    document.body.style.overflow = '';
+                }).catch(e => {
+                    document.getElementById('scanner-ui').classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
+            } else {
+                document.getElementById('scanner-ui').classList.add('hidden');
+                document.body.style.overflow = '';
             }
-            html5QrCode = null;
-            document.getElementById('scanner-ui').classList.add('hidden');
-            document.body.style.overflow = '';
         }
         
         async function toggleTorch() {
             if (html5QrCode && html5QrCode.isScanning) {
                 try {
-                    const camera = html5QrCode.getRunningTrackCameraCapabilities();
-                    if (camera && camera.torch) {
-                        const newState = !camera.torchStatus;
-                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: newState }] });
+                    const track = html5QrCode.getRunningTrackCameraCapabilities();
+                    if (track && track.torch) {
+                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: !html5QrCode.getRunningTrackCameraSettings().torch }] });
                     }
                 } catch(e) { console.warn("Torch not supported"); }
             }
         }
         
         function handleProcess(code) {
-            if (!isScannerActive) return;
+            // Segera nonaktifkan deteksi agar tidak double scan
+            isScannerActive = false; 
+            
             const match = allData.find(r => r.waybill === code);
             if (match) {
                 db.ref(`logistic_data/${match.fbKey}`).update({ _scanned: true });
@@ -489,10 +507,10 @@
                 playAlert('error');
                 showResult(false, { waybill: code });
             }
-            // Stop scanner setelah scan sukses
-            isScannerActive = false;
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().catch(e => console.warn);
+            
+            // Stop camera stream to free up resources
+            if (html5QrCode) {
+                html5QrCode.stop().catch(e => console.warn("Stop error during handleProcess"));
             }
         }
         
@@ -542,19 +560,31 @@
             modal.classList.remove('active');
             setTimeout(() => {
                 document.getElementById('result-sheet').classList.add('hidden');
-                // Jangan restart scanner otomatis, biar user klik tombol scan lagi
+                // Restart scanner otomatis setelah modal ditutup
+                startScanner();
             }, 250);
         }
         
         function toggleManualInput(show) {
             const overlay = document.getElementById('manual-overlay');
             overlay.classList.toggle('hidden', !show);
-            if(show) setTimeout(() => document.getElementById('manual-field')?.focus(), 100);
+            if(show) {
+                setTimeout(() => document.getElementById('manual-field').focus(), 150);
+                isScannerActive = false;
+            } else {
+                isScannerActive = true;
+            }
         }
+        
         function processManualEntry() {
             const val = document.getElementById('manual-field').value.trim();
-            if(val) { toggleManualInput(false); handleProcess(val); document.getElementById('manual-field').value = ''; }
+            if(val) { 
+                toggleManualInput(false); 
+                handleProcess(val); 
+                document.getElementById('manual-field').value = ''; 
+            }
         }
+        
         function toggleSheet(id, show) {
             const el = document.getElementById(id);
             if(show) {
@@ -566,8 +596,20 @@
                 setTimeout(() => el.classList.add('hidden'), 350);
             }
         }
-        function secureAdminMenu() { if(prompt("🔐 MASUKKAN PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); else alert("PIN Salah"); }
-        function resetCloudData() { if(confirm("⚠️ PERINGATAN: Semua data staging akan dihapus permanen! Lanjutkan?")) { db.ref('logistic_data').set(null); toggleSheet('admin-sheet', false); alert("Data telah direset."); } }
+        
+        function secureAdminMenu() { 
+            if(prompt("🔐 MASUKKAN PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); 
+            else alert("PIN Salah"); 
+        }
+        
+        function resetCloudData() { 
+            if(confirm("⚠️ PERINGATAN: Semua data staging akan dihapus permanen! Lanjutkan?")) { 
+                db.ref('logistic_data').set(null); 
+                toggleSheet('admin-sheet', false); 
+                alert("Data telah direset."); 
+            } 
+        }
+        
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if(!file) return;

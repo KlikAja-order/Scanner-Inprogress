@@ -29,9 +29,9 @@
         }
         /* Glassmorphism Premium */
         .glass-premium {
-            background: rgba(18, 22, 32, 0.75);
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
         }
         .glass-card {
@@ -58,35 +58,54 @@
             box-shadow: 0 4px 14px -5px rgba(20, 184, 166, 0.5);
             background: rgba(20, 184, 166, 0.12);
         }
-        /* Scanner Frame - Fixed Border Logic */
+
+        /* FIX SCANNER UI */
+        #qr-reader {
+            border: none !important;
+            background: black !important;
+        }
+        #qr-reader video {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        /* Frame yang sinkron dengan kotak scan */
         .scan-frame-glow {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -55%);
-            width: 280px;
-            height: 280px;
+            transform: translate(-50%, -50%);
+            width: 260px; /* Sesuai dengan qrbox */
+            height: 260px;
             border: 2px solid #14b8a6;
             border-radius: 24px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
             z-index: 10;
         }
         .scan-line-premium {
             position: absolute;
             left: 10%;
             width: 80%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #14b8a6, #5eead4, #14b8a6, transparent);
-            border-radius: 4px;
-            animation: scanFloat 2.2s ease-in-out infinite;
-            filter: drop-shadow(0 0 8px #14b8a6);
+            height: 2px;
+            background: #14b8a6;
+            box-shadow: 0 0 15px #14b8a6;
+            animation: scanMove 2s infinite ease-in-out;
             z-index: 11;
         }
-        @keyframes scanFloat {
-            0% { top: 5%; opacity: 0.5; }
-            50% { top: 90%; opacity: 1; }
-            100% { top: 5%; opacity: 0.5; }
+        @keyframes scanMove {
+            0% { top: 20%; }
+            50% { top: 80%; }
+            100% { top: 20%; }
         }
+
+        /* Perbaikan Tombol Tulis agar kelihatan */
+        .btn-tulis {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #0A0C12 !important;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+
         /* Modal Premium */
         .modal-premium {
             background: rgba(10, 13, 20, 0.98);
@@ -118,31 +137,21 @@
         .custom-scroll::-webkit-scrollbar { width: 3px; }
         .custom-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
-        
-        /* Fixed Input Manual Contrast */
+
         .awb-input {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
             border-bottom: 2px solid #14b8a6;
-            color: #ffffff;
+            color: #f1f5f9;
             letter-spacing: 1px;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
         .awb-input:focus {
             outline: none;
             border-bottom-color: #5eead4;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
         }
         .awb-input::placeholder {
-            color: rgba(255,255,255,0.4);
+            color: #64748b;
             font-size: 12px;
-        }
-        .text-accent { color: #14b8a6; }
-        .border-accent { border-color: #14b8a6; }
-        .bg-accent { background: #14b8a6; }
-        
-        /* Video Aspect Overwrite */
-        #qr-reader video {
-            object-fit: cover !important;
         }
     </style>
 </head>
@@ -205,37 +214,37 @@
         </button>
         
         <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-0.5 text-slate-400 active:text-teal-400 transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             <span class="text-[7px] font-black uppercase">Admin</span>
         </button>
     </nav>
 
     <!-- SCANNER UI -->
     <div id="scanner-ui" class="fixed inset-0 z-[100] bg-black hidden">
-        <div id="qr-reader" class="w-full h-full"></div>
-        <!-- Overlays with fixed layout -->
-        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-            <div class="scan-frame-glow">
-                <div class="scan-line-premium"></div>
-            </div>
-        </div>
+        <div id="qr-reader" style="width: 100%; height: 100%;"></div>
         
-        <div class="absolute top-10 left-4 right-4 flex justify-between z-20">
-            <button onclick="stopScanner()" class="w-10 h-10 glass-premium rounded-xl flex items-center justify-center text-white text-lg border border-white/20">✕</button>
+        <!-- Frame Overlay -->
+        <div class="scan-frame-glow pointer-events-none">
+            <div class="scan-line-premium"></div>
+        </div>
+
+        <div class="absolute top-10 left-4 right-4 flex justify-between z-[110]">
+            <button onclick="stopScanner()" class="w-10 h-10 glass-premium rounded-xl flex items-center justify-center text-white text-lg">✕</button>
             <div class="flex gap-2">
-                <button onclick="toggleManualInput(true)" class="px-4 h-10 glass-premium rounded-xl text-[9px] font-black uppercase tracking-widest border border-white/20">✎ TULIS</button>
+                <button onclick="toggleManualInput(true)" class="btn-tulis px-5 h-10 rounded-xl text-[10px] uppercase tracking-widest">✎ TULIS</button>
                 <button id="torch-btn" onclick="toggleTorch()" class="w-10 h-10 glass-premium rounded-xl text-lg flex items-center justify-center">🔦</button>
             </div>
         </div>
-        <div class="absolute bottom-14 left-0 right-0 text-center z-20">
-            <p class="text-[8px] font-black text-teal-300 tracking-[3px] bg-black/50 inline-block mx-auto px-4 py-1.5 rounded-full backdrop-blur-md">ARAHKAN KE BARCODE / QR</p>
+        
+        <div class="absolute bottom-14 left-0 right-0 text-center z-[110]">
+            <p class="text-[9px] font-bold text-teal-400 tracking-[2px] bg-black/60 px-4 py-2 rounded-full inline-block backdrop-blur-md">ARAHKAN KE BARCODE / QR</p>
         </div>
         
         <!-- MANUAL INPUT OVERLAY -->
-        <div id="manual-overlay" class="absolute inset-0 bg-[#0A0C12]/98 backdrop-blur-2xl hidden flex-col items-center justify-start pt-32 px-8 z-[110]">
+        <div id="manual-overlay" class="absolute inset-0 bg-[#0A0C12]/98 backdrop-blur-2xl hidden flex-col items-center justify-start pt-32 px-8 z-[120]">
             <div class="w-full max-w-sm">
                 <p class="text-[11px] font-black text-teal-400 uppercase tracking-[4px] text-center mb-6">INPUT RESI MANUAL</p>
-                <input type="text" id="manual-field" placeholder="Masukkan nomor resi / AWB" class="awb-input w-full bg-white/20 border-b-2 border-teal-500 py-4 text-xl font-mono font-bold text-center outline-none tracking-wider text-white rounded-lg px-3">
+                <input type="text" id="manual-field" placeholder="Masukkan nomor resi / AWB" class="awb-input w-full bg-white/10 border-b-2 border-teal-500/70 py-4 text-xl font-mono font-bold text-center outline-none tracking-wider text-white rounded-lg px-3">
                 <div class="flex gap-4 mt-10 w-full">
                     <button onclick="toggleManualInput(false)" class="flex-1 py-4 glass-premium rounded-xl font-bold text-sm text-white border border-white/10">BATAL</button>
                     <button onclick="processManualEntry()" class="flex-1 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-black text-sm uppercase shadow-xl">PROSES</button>
@@ -245,7 +254,7 @@
     </div>
 
     <!-- MODAL RESULT -->
-    <div id="result-sheet" class="fixed inset-0 z-[120] bg-black/85 hidden flex items-center justify-center p-5" onclick="closeResult()">
+    <div id="result-sheet" class="fixed inset-0 z-[130] bg-black/85 hidden flex items-center justify-center p-5" onclick="closeResult()">
         <div id="result-modal" class="w-full max-w-md modal-premium rounded-3xl p-6 border border-white/20" onclick="event.stopPropagation()">
             <div id="res-status-icon" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-2xl"></div>
             <div class="text-center mb-5">
@@ -289,14 +298,12 @@
                 <button onclick="resetCloudData()" class="w-full py-5 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded-xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest">
                     🧨 RESET SEMUA DATA
                 </button>
-                <p class="text-[7px] text-center text-slate-500 mt-2">Format CSV: header waybill|receiver_name|receiver_address|receiver_district</p>
             </div>
         </div>
     </div>
     <input type="file" id="file-upload" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
 
     <script>
-        // ========== FIREBASE INIT ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCXxi0dOc3Otq_bUmUDnaOGiMEuBvTOi44",
             authDomain: "sla-core-scanner.firebaseapp.com",
@@ -315,7 +322,6 @@
         let html5QrCode = null;
         let isScannerActive = false;
         
-        // Audio feedback
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playAlert(type) {
             const osc = audioCtx.createOscillator();
@@ -335,16 +341,10 @@
             }
         }
         
-        function getFilteredData() {
+        function renderStats() {
             let filtered = [...allData];
             if(selectedDistricts.size > 0) filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
-            if(statusFilter === 'scanned') filtered = filtered.filter(item => item._scanned === true);
-            if(statusFilter === 'pending') filtered = filtered.filter(item => !item._scanned);
-            return filtered;
-        }
-        
-        function renderStats() {
-            const filtered = getFilteredData();
+            
             const total = filtered.length;
             const scanned = filtered.filter(r => r._scanned).length;
             const pending = total - scanned;
@@ -354,18 +354,22 @@
         }
         
         function renderList() {
-            const filtered = getFilteredData();
+            let filtered = [...allData];
+            if(selectedDistricts.size > 0) filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
+            if(statusFilter === 'scanned') filtered = filtered.filter(item => item._scanned === true);
+            if(statusFilter === 'pending') filtered = filtered.filter(item => !item._scanned);
+
             const container = document.getElementById('data-list');
             if(filtered.length === 0) {
                 container.innerHTML = `<div class="glass-card p-8 rounded-2xl text-center text-slate-400 text-[10px] font-bold border border-dashed border-white/10">📭 Tidak ada data sesuai filter</div>`;
                 return;
             }
             container.innerHTML = filtered.map(item => `
-                <div class="glass-card p-4 rounded-xl flex justify-between items-center transition-all hover:bg-white/5 ${item._scanned ? 'border-l-4 border-teal-500' : 'border-l-4 border-slate-700'}">
-                    <div class="flex-1">
-                        <p class="font-mono-custom text-xs font-black tracking-tight text-white">${item.waybill}</p>
-                        <p class="text-[9px] font-semibold text-slate-300 mt-0.5 truncate max-w-[200px]">${item.receiver_name || '—'}</p>
-                        <span class="text-[8px] font-black text-teal-400/80 uppercase mt-0.5 inline-block">${item.receiver_district || '-'}</span>
+                <div class="glass-card p-4 rounded-xl flex justify-between items-center ${item._scanned ? 'border-l-4 border-teal-500' : 'border-l-4 border-slate-700'}">
+                    <div>
+                        <p class="font-mono-custom text-xs font-black text-white">${item.waybill}</p>
+                        <p class="text-[9px] font-semibold text-slate-300 truncate max-w-[180px]">${item.receiver_name || '—'}</p>
+                        <span class="text-[8px] font-black text-teal-400/80 uppercase">${item.receiver_district || '-'}</span>
                     </div>
                     <div class="text-right">
                         ${item._scanned ? `<span class="bg-teal-500/20 text-teal-300 px-2 py-1 rounded-full text-[8px] font-black uppercase">✓ TERSEDIA</span>` : `<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full text-[8px] font-black uppercase">⚠ BELUM</span>`}
@@ -380,76 +384,54 @@
             if(!container) return;
             container.innerHTML = dists.map(d => `
                 <div onclick="toggleDistrict('${d.replace(/'/g, "\\'")}')" 
-                     class="p-3 glass-premium rounded-xl text-center text-[9px] font-black uppercase cursor-pointer transition-all ${selectedDistricts.has(d) ? 'bg-teal-500 text-black shadow-lg border-teal-300' : 'text-slate-300 border-white/5'}">
+                     class="p-3 glass-premium rounded-xl text-center text-[9px] font-black uppercase cursor-pointer transition-all ${selectedDistricts.has(d) ? 'bg-teal-500 text-black border-teal-300' : 'text-slate-300 border-white/5'}">
                     ${d}
                 </div>
             `).join('');
-            updateFilterBadges();
         }
         
         window.toggleDistrict = function(d) {
             if(selectedDistricts.has(d)) selectedDistricts.delete(d);
             else selectedDistricts.add(d);
-            renderStats(); renderList(); renderDistricts();
+            updateAllUI();
         };
-        
-        function clearDistrictFilter() { selectedDistricts.clear(); renderStats(); renderList(); renderDistricts(); updateFilterBadges(); }
-        function setStatusFilter(filter) {
-            statusFilter = filter;
-            ['all','scanned','pending'].forEach(f => {
-                const btn = document.getElementById(`f-${f}`);
-                if(btn) btn.className = statusFilter === f ? "py-3 bg-teal-500 text-black rounded-xl text-[9px] font-black uppercase shadow-lg" : "py-3 glass-premium rounded-xl text-[9px] font-black uppercase text-slate-300";
-            });
-            renderStats(); renderList(); updateFilterBadges();
-            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('filter-active'));
-        }
-        function applyQuickFilter(type) {
-            if(type === 'scanned') setStatusFilter('scanned');
-            else if(type === 'pending') setStatusFilter('pending');
-            else setStatusFilter('all');
-            if(type === 'scanned') document.getElementById('stat-scanned-card').classList.add('filter-active');
-            else if(type === 'pending') document.getElementById('stat-pending-card').classList.add('filter-active');
-            else document.getElementById('stat-total-card').classList.add('filter-active');
-        }
-        function resetAllFilters() {
-            selectedDistricts.clear(); statusFilter = 'all'; setStatusFilter('all');
-            renderDistricts(); renderStats(); renderList(); updateFilterBadges();
-            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('filter-active'));
-            document.getElementById('stat-total-card').classList.add('filter-active');
-        }
-        function updateFilterBadges() {
-            const statusText = statusFilter === 'all' ? 'Semua status' : (statusFilter === 'scanned' ? 'Sudah scan' : 'Belum scan');
+
+        function updateAllUI() {
+            renderStats(); renderList(); renderDistricts();
             const statusBadge = document.getElementById('filter-badge-status');
-            if(statusBadge) statusBadge.textContent = statusText;
+            statusBadge.textContent = statusFilter === 'all' ? 'Semua status' : (statusFilter === 'scanned' ? 'Sudah scan' : 'Belum scan');
             const districtBadge = document.getElementById('filter-badge-district');
             if(selectedDistricts.size === 0) districtBadge.classList.add('hidden');
             else { districtBadge.classList.remove('hidden'); districtBadge.textContent = `${selectedDistricts.size} kecamatan`; }
         }
-        
-        // ========== SCANNER FIX ==========
+
+        function setStatusFilter(filter) {
+            statusFilter = filter;
+            ['all','scanned','pending'].forEach(f => {
+                const btn = document.getElementById(`f-${f}`);
+                if(btn) btn.className = statusFilter === f ? "py-3 bg-teal-500 text-black rounded-xl text-[9px] font-black uppercase" : "py-3 glass-premium rounded-xl text-[9px] font-black uppercase";
+            });
+            updateAllUI();
+        }
+
+        function resetAllFilters() {
+            selectedDistricts.clear(); statusFilter = 'all'; setStatusFilter('all');
+        }
+
+        // SCANNER LOGIC FIX
         async function startScanner() {
             const scannerUi = document.getElementById('scanner-ui');
             scannerUi.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
-            // Clean up previous instance if any
-            if (html5QrCode) {
-                try { await html5QrCode.stop(); } catch(e) {}
-                html5QrCode = null;
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("qr-reader");
             }
             
-            html5QrCode = new Html5Qrcode("qr-reader");
             const config = {
                 fps: 20,
-                qrbox: { width: 280, height: 280 },
-                aspectRatio: 1.0,
-                showTorchButton: false,
-                formatsToSupport: [ 
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.QR_CODE
-                ]
+                qrbox: { width: 260, height: 260 },
+                aspectRatio: 1.0
             };
             
             try {
@@ -457,47 +439,27 @@
                     { facingMode: "environment" },
                     config,
                     (decodedText) => { if (isScannerActive) handleProcess(decodedText); },
-                    () => {} // silent error for frame drops
+                    () => {} 
                 );
                 isScannerActive = true;
             } catch (err) {
-                console.error("Gagal start kamera:", err);
-                stopScanner();
-                alert("Kamera tidak dapat diakses.");
+                console.error("Kamera Error:", err);
             }
         }
         
-        function stopScanner() {
+        async function stopScanner() {
             isScannerActive = false;
             if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scanner-ui').classList.add('hidden');
-                    document.body.style.overflow = '';
-                }).catch(e => {
-                    document.getElementById('scanner-ui').classList.add('hidden');
-                    document.body.style.overflow = '';
-                });
-            } else {
-                document.getElementById('scanner-ui').classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-        }
-        
-        async function toggleTorch() {
-            if (html5QrCode && html5QrCode.isScanning) {
                 try {
-                    const track = html5QrCode.getRunningTrackCameraCapabilities();
-                    if (track && track.torch) {
-                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: !html5QrCode.getRunningTrackCameraSettings().torch }] });
-                    }
-                } catch(e) { console.warn("Torch not supported"); }
+                    await html5QrCode.stop();
+                } catch(e) {}
             }
+            document.getElementById('scanner-ui').classList.add('hidden');
+            document.body.style.overflow = '';
         }
-        
+
         function handleProcess(code) {
-            // Segera nonaktifkan deteksi agar tidak double scan
-            isScannerActive = false; 
-            
+            isScannerActive = false;
             const match = allData.find(r => r.waybill === code);
             if (match) {
                 db.ref(`logistic_data/${match.fbKey}`).update({ _scanned: true });
@@ -506,11 +468,6 @@
             } else {
                 playAlert('error');
                 showResult(false, { waybill: code });
-            }
-            
-            // Stop camera stream to free up resources
-            if (html5QrCode) {
-                html5QrCode.stop().catch(e => console.warn("Stop error during handleProcess"));
             }
         }
         
@@ -524,67 +481,66 @@
                 document.getElementById('res-content').innerHTML = `
                     <div class="space-y-3">
                         <div class="glass-card p-3 rounded-xl">
-                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Nama Penerima</p>
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Penerima</p>
                             <p class="text-sm font-bold text-white">${data.receiver_name || '-'}</p>
                         </div>
                         <div class="glass-card p-3 rounded-xl">
-                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Alamat / Kecamatan</p>
-                            <p class="text-[10px] font-medium text-slate-200">${data.receiver_address || 'Alamat tidak tersedia'}</p>
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Kecamatan</p>
                             <p class="text-xs font-black text-teal-400 mt-1">${data.receiver_district || '-'}</p>
                         </div>
-                        <div class="bg-teal-500/15 p-3 rounded-xl text-center border border-teal-500/40">
-                            <p class="text-[9px] font-black text-teal-400 uppercase tracking-wider">⚡ INPROGRESS</p>
-                            <p class="text-xs font-black text-white mt-1">WAJIB DIKIRIM HARI INI !</p>
-                        </div>
-                    </div>
-                `;
+                    </div>`;
             } else {
-                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-amber-500 text-black shadow-xl";
+                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-rose-500 text-black shadow-xl";
                 iconDiv.textContent = '✕';
                 document.getElementById('res-status-text').textContent = 'PAKET TIDAK TERDAFTAR';
-                document.getElementById('res-content').innerHTML = `
-                    <div class="text-center py-5">
-                        <p class="text-amber-400 font-black text-base">BUKAN INPROGRESS</p>
-                        <p class="text-[9px] text-slate-400 mt-2">Resi tidak ada dalam database staging.<br>Periksa kembali atau hubungi admin.</p>
-                    </div>
-                `;
+                document.getElementById('res-content').innerHTML = `<p class="text-[10px] text-slate-400 text-center">Resi tidak ditemukan di database staging.</p>`;
             }
             document.getElementById('res-awb').textContent = data.waybill;
             document.getElementById('result-sheet').classList.remove('hidden');
-            setTimeout(() => modal.classList.add('active'), 20);
-            if(navigator.vibrate) navigator.vibrate(success ? [100,50,100] : [300]);
+            setTimeout(() => modal.classList.add('active'), 50);
         }
         
         function closeResult() {
-            const modal = document.getElementById('result-modal');
-            modal.classList.remove('active');
+            document.getElementById('result-modal').classList.remove('active');
             setTimeout(() => {
                 document.getElementById('result-sheet').classList.add('hidden');
-                // Restart scanner otomatis setelah modal ditutup
-                startScanner();
-            }, 250);
+                // Otomatis aktifkan scanner lagi setelah modal tutup
+                isScannerActive = true;
+            }, 300);
         }
         
         function toggleManualInput(show) {
             const overlay = document.getElementById('manual-overlay');
             overlay.classList.toggle('hidden', !show);
             if(show) {
-                setTimeout(() => document.getElementById('manual-field').focus(), 150);
                 isScannerActive = false;
+                setTimeout(() => document.getElementById('manual-field').focus(), 100);
             } else {
                 isScannerActive = true;
             }
         }
-        
+
         function processManualEntry() {
             const val = document.getElementById('manual-field').value.trim();
             if(val) { 
-                toggleManualInput(false); 
                 handleProcess(val); 
-                document.getElementById('manual-field').value = ''; 
+                document.getElementById('manual-field').value = '';
+                toggleManualInput(false);
             }
         }
-        
+
+        async function toggleTorch() {
+            if (html5QrCode && isScannerActive) {
+                try {
+                    const track = html5QrCode.getRunningTrackCameraCapabilities();
+                    if (track.torch) {
+                        const current = html5QrCode.getRunningTrackCameraSettings().torch;
+                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: !current }] });
+                    }
+                } catch(e) {}
+            }
+        }
+
         function toggleSheet(id, show) {
             const el = document.getElementById(id);
             if(show) {
@@ -596,20 +552,17 @@
                 setTimeout(() => el.classList.add('hidden'), 350);
             }
         }
-        
+
         function secureAdminMenu() { 
-            if(prompt("🔐 MASUKKAN PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); 
-            else alert("PIN Salah"); 
+            if(prompt("🔐 PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); 
         }
-        
-        function resetCloudData() { 
-            if(confirm("⚠️ PERINGATAN: Semua data staging akan dihapus permanen! Lanjutkan?")) { 
-                db.ref('logistic_data').set(null); 
-                toggleSheet('admin-sheet', false); 
-                alert("Data telah direset."); 
-            } 
-        }
-        
+
+        db.ref('logistic_data').on('value', snap => {
+            const val = snap.val();
+            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
+            updateAllUI();
+        });
+
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -625,28 +578,8 @@
                 if(obj.waybill) newData[obj.waybill] = obj;
             });
             await db.ref('logistic_data').set(newData);
-            alert(`✅ Upload sukses! ${Object.keys(newData).length} resi terupdate.`);
+            alert("Upload Berhasil");
         }
-        
-        document.getElementById('stat-scanned-card').addEventListener('click', () => applyQuickFilter('scanned'));
-        document.getElementById('stat-pending-card').addEventListener('click', () => applyQuickFilter('pending'));
-        document.getElementById('stat-total-card').addEventListener('click', () => applyQuickFilter('all'));
-        
-        db.ref('logistic_data').on('value', snap => {
-            const val = snap.val();
-            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
-            renderStats(); renderList(); renderDistricts();
-        });
-        
-        setTimeout(() => { document.getElementById('stat-total-card').classList.add('filter-active'); }, 100);
-        
-        window.setStatusFilter = setStatusFilter;
-        window.toggleDistrict = toggleDistrict;
-        window.clearDistrictFilter = clearDistrictFilter;
-        window.resetAllFilters = resetAllFilters;
-        window.startScanner = startScanner;
-        window.stopScanner = stopScanner;
-        window.toggleTorch = toggleTorch;
     </script>
 </body>
 </html>

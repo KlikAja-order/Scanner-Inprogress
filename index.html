@@ -25,7 +25,7 @@
         }
         body {
             background: #0A0C12;
-            background-image: radial-gradient(circle at 30% 10%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
+            background-image: radial-gradient(circle at 30% 10%, rgba(20, 184, 166, 0.05) 0%, transparent 60%);
         }
         /* Glassmorphism Premium */
         .glass-premium {
@@ -45,7 +45,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Stat Card */
+        /* Stat Card - BISA DIKLIK */
         .stat-card {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(20, 184, 166, 0.02));
             border-bottom: 2px solid rgba(20, 184, 166, 0.5);
@@ -56,7 +56,7 @@
         .stat-card.filter-active {
             border-bottom-color: #14b8a6;
             box-shadow: 0 4px 14px -5px rgba(20, 184, 166, 0.5);
-            background: rgba(20, 184, 166, 0.12);
+            background: rgba(20, 184, 166, 0.15);
         }
 
         /* FIX SCANNER UI */
@@ -69,13 +69,13 @@
             width: 100% !important;
             height: 100% !important;
         }
-        /* Frame yang sinkron dengan kotak scan */
+        /* Frame scanner yang sinkron */
         .scan-frame-glow {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 260px; /* Sesuai dengan qrbox */
+            width: 260px;
             height: 260px;
             border: 2px solid #14b8a6;
             border-radius: 24px;
@@ -98,7 +98,6 @@
             100% { top: 20%; }
         }
 
-        /* Perbaikan Tombol Tulis agar kelihatan */
         .btn-tulis {
             background: rgba(255, 255, 255, 0.9) !important;
             color: #0A0C12 !important;
@@ -106,7 +105,6 @@
             box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
         }
 
-        /* Modal Premium */
         .modal-premium {
             background: rgba(10, 13, 20, 0.98);
             backdrop-filter: blur(32px);
@@ -171,17 +169,17 @@
         </div>
     </div>
 
-    <!-- STATISTIK CARD -->
+    <!-- STATISTIK CARD - BISA DIKLIK -->
     <div class="px-5 py-4 grid grid-cols-3 gap-3 shrink-0">
-        <div id="stat-total-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel">
+        <div id="stat-total-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel" data-filter="all">
             <p class="text-2xl font-black tracking-tighter text-white" id="total-today">0</p>
             <p class="text-[8px] font-bold text-teal-400/80 uppercase tracking-wider mt-0.5">TOTAL PAKET</p>
         </div>
-        <div id="stat-scanned-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel">
+        <div id="stat-scanned-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel" data-filter="scanned">
             <p class="text-2xl font-black tracking-tighter text-teal-400" id="scanned-count">0</p>
             <p class="text-[8px] font-bold text-teal-400/80 uppercase tracking-wider mt-0.5">TELAH SCAN</p>
         </div>
-        <div id="stat-pending-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel">
+        <div id="stat-pending-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel" data-filter="pending">
             <p class="text-2xl font-black tracking-tighter text-amber-400" id="pending-count">0</p>
             <p class="text-[8px] font-bold text-amber-400/80 uppercase tracking-wider mt-0.5">BELUM SCAN</p>
         </div>
@@ -341,10 +339,17 @@
             }
         }
         
-        function renderStats() {
+        // Filter logic
+        function getFilteredData() {
             let filtered = [...allData];
             if(selectedDistricts.size > 0) filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
-            
+            if(statusFilter === 'scanned') filtered = filtered.filter(item => item._scanned === true);
+            if(statusFilter === 'pending') filtered = filtered.filter(item => !item._scanned);
+            return filtered;
+        }
+        
+        function renderStats() {
+            const filtered = getFilteredData();
             const total = filtered.length;
             const scanned = filtered.filter(r => r._scanned).length;
             const pending = total - scanned;
@@ -354,11 +359,7 @@
         }
         
         function renderList() {
-            let filtered = [...allData];
-            if(selectedDistricts.size > 0) filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
-            if(statusFilter === 'scanned') filtered = filtered.filter(item => item._scanned === true);
-            if(statusFilter === 'pending') filtered = filtered.filter(item => !item._scanned);
-
+            const filtered = getFilteredData();
             const container = document.getElementById('data-list');
             if(filtered.length === 0) {
                 container.innerHTML = `<div class="glass-card p-8 rounded-2xl text-center text-slate-400 text-[10px] font-bold border border-dashed border-white/10">📭 Tidak ada data sesuai filter</div>`;
@@ -396,6 +397,35 @@
             updateAllUI();
         };
 
+        function setStatusFilter(filter) {
+            statusFilter = filter;
+            ['all','scanned','pending'].forEach(f => {
+                const btn = document.getElementById(`f-${f}`);
+                if(btn) btn.className = statusFilter === f ? "py-3 bg-teal-500 text-black rounded-xl text-[9px] font-black uppercase" : "py-3 glass-premium rounded-xl text-[9px] font-black uppercase";
+            });
+            updateAllUI();
+        }
+        
+        function clearDistrictFilter() {
+            selectedDistricts.clear();
+            updateAllUI();
+        }
+        
+        function resetAllFilters() {
+            selectedDistricts.clear();
+            setStatusFilter('all');
+        }
+        
+        // KLIK STAT CARD
+        function onStatClick(filterType) {
+            setStatusFilter(filterType);
+            // Update active highlight pada card
+            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('filter-active'));
+            if(filterType === 'all') document.getElementById('stat-total-card').classList.add('filter-active');
+            else if(filterType === 'scanned') document.getElementById('stat-scanned-card').classList.add('filter-active');
+            else if(filterType === 'pending') document.getElementById('stat-pending-card').classList.add('filter-active');
+        }
+        
         function updateAllUI() {
             renderStats(); renderList(); renderDistricts();
             const statusBadge = document.getElementById('filter-badge-status');
@@ -405,29 +435,18 @@
             else { districtBadge.classList.remove('hidden'); districtBadge.textContent = `${selectedDistricts.size} kecamatan`; }
         }
 
-        function setStatusFilter(filter) {
-            statusFilter = filter;
-            ['all','scanned','pending'].forEach(f => {
-                const btn = document.getElementById(`f-${f}`);
-                if(btn) btn.className = statusFilter === f ? "py-3 bg-teal-500 text-black rounded-xl text-[9px] font-black uppercase" : "py-3 glass-premium rounded-xl text-[9px] font-black uppercase";
-            });
-            updateAllUI();
-        }
-
-        function resetAllFilters() {
-            selectedDistricts.clear(); statusFilter = 'all'; setStatusFilter('all');
-        }
-
-        // SCANNER LOGIC FIX
+        // SCANNER LOGIC
         async function startScanner() {
             const scannerUi = document.getElementById('scanner-ui');
             scannerUi.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("qr-reader");
+            if (html5QrCode && html5QrCode.isScanning) {
+                try { await html5QrCode.stop(); } catch(e) {}
+                html5QrCode = null;
             }
             
+            html5QrCode = new Html5Qrcode("qr-reader");
             const config = {
                 fps: 20,
                 qrbox: { width: 260, height: 260 },
@@ -439,26 +458,27 @@
                     { facingMode: "environment" },
                     config,
                     (decodedText) => { if (isScannerActive) handleProcess(decodedText); },
-                    () => {} 
+                    () => {}
                 );
                 isScannerActive = true;
             } catch (err) {
                 console.error("Kamera Error:", err);
+                stopScanner();
             }
         }
         
         async function stopScanner() {
             isScannerActive = false;
             if (html5QrCode) {
-                try {
-                    await html5QrCode.stop();
-                } catch(e) {}
+                try { await html5QrCode.stop(); } catch(e) {}
+                html5QrCode = null;
             }
             document.getElementById('scanner-ui').classList.add('hidden');
             document.body.style.overflow = '';
         }
 
         function handleProcess(code) {
+            if (!isScannerActive) return;
             isScannerActive = false;
             const match = allData.find(r => r.waybill === code);
             if (match) {
@@ -488,9 +508,13 @@
                             <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Kecamatan</p>
                             <p class="text-xs font-black text-teal-400 mt-1">${data.receiver_district || '-'}</p>
                         </div>
+                        <div class="bg-teal-500/20 p-3 rounded-xl text-center border border-teal-500/40">
+                            <p class="text-[9px] font-black text-teal-400 uppercase">⚡ INPROGRESS</p>
+                            <p class="text-xs font-black text-white mt-1">WAJIB DIKIRIM HARI INI !</p>
+                        </div>
                     </div>`;
             } else {
-                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-rose-500 text-black shadow-xl";
+                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-rose-500 text-white shadow-xl";
                 iconDiv.textContent = '✕';
                 document.getElementById('res-status-text').textContent = 'PAKET TIDAK TERDAFTAR';
                 document.getElementById('res-content').innerHTML = `<p class="text-[10px] text-slate-400 text-center">Resi tidak ditemukan di database staging.</p>`;
@@ -501,10 +525,10 @@
         }
         
         function closeResult() {
-            document.getElementById('result-modal').classList.remove('active');
+            const modal = document.getElementById('result-modal');
+            modal.classList.remove('active');
             setTimeout(() => {
                 document.getElementById('result-sheet').classList.add('hidden');
-                // Otomatis aktifkan scanner lagi setelah modal tutup
                 isScannerActive = true;
             }, 300);
         }
@@ -533,7 +557,7 @@
             if (html5QrCode && isScannerActive) {
                 try {
                     const track = html5QrCode.getRunningTrackCameraCapabilities();
-                    if (track.torch) {
+                    if (track && track.torch) {
                         const current = html5QrCode.getRunningTrackCameraSettings().torch;
                         await html5QrCode.applyVideoConstraints({ advanced: [{ torch: !current }] });
                     }
@@ -556,13 +580,15 @@
         function secureAdminMenu() { 
             if(prompt("🔐 PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); 
         }
-
-        db.ref('logistic_data').on('value', snap => {
-            const val = snap.val();
-            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
-            updateAllUI();
-        });
-
+        
+        async function resetCloudData() {
+            if(confirm("⚠️ PERINGATAN: Semua data akan dihapus permanen! Lanjutkan?")) {
+                await db.ref('logistic_data').set(null);
+                alert("Data telah direset.");
+                toggleSheet('admin-sheet', false);
+            }
+        }
+        
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -578,8 +604,23 @@
                 if(obj.waybill) newData[obj.waybill] = obj;
             });
             await db.ref('logistic_data').set(newData);
-            alert("Upload Berhasil");
+            alert(`✅ Upload sukses! ${Object.keys(newData).length} resi terupdate.`);
         }
+
+        // Event listener untuk stat card klik
+        document.getElementById('stat-total-card').addEventListener('click', () => onStatClick('all'));
+        document.getElementById('stat-scanned-card').addEventListener('click', () => onStatClick('scanned'));
+        document.getElementById('stat-pending-card').addEventListener('click', () => onStatClick('pending'));
+        
+        // Firebase realtime
+        db.ref('logistic_data').on('value', snap => {
+            const val = snap.val();
+            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
+            updateAllUI();
+        });
+        
+        // Set default active highlight
+        setTimeout(() => { document.getElementById('stat-total-card').classList.add('filter-active'); }, 100);
     </script>
 </body>
 </html>

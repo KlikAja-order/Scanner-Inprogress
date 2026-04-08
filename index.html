@@ -3,228 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Inprogress • SLA Scanner Pro</title>
+    <title>Inprogress | SLA Scan Station</title>
 
     <!-- Firebase & Tailwind -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter + SF Mono feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #020617; color: #f8fafc; }
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: #0B0F1C;
+            background-image: radial-gradient(circle at 25% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+        }
+        /* Glassmorphism premium */
         .glass-premium {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+            background: rgba(18, 24, 38, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.5);
         }
         .glass-card {
-            background: rgba(30, 41, 59, 0.5);
+            background: rgba(15, 20, 30, 0.65);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        .neon-glow {
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+        .stat-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.02));
+            border-bottom: 2px solid rgba(16, 185, 129, 0.5);
+            transition: transform 0.2s, border-color 0.2s;
         }
-        .scan-frame {
+        .stat-card.filter-active {
+            border-bottom-color: #10b981;
+            box-shadow: 0 8px 20px -10px rgba(16, 185, 129, 0.4);
+        }
+        .scan-frame-glow {
             position: absolute;
-            inset: 12%;
-            border: 2px solid rgba(16, 185, 129, 0.6);
-            border-radius: 48px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
+            inset: 10%;
+            border: 1.5px solid rgba(16, 185, 129, 0.7);
+            border-radius: 56px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(16, 185, 129, 0.3);
         }
-        .scan-line-custom {
+        .scan-line-premium {
             position: absolute;
-            left: 5%;
-            width: 90%;
-            height: 3px;
+            left: 8%;
+            width: 84%;
+            height: 2.5px;
             background: linear-gradient(90deg, transparent, #10b981, #a3e635, #10b981, transparent);
             border-radius: 4px;
-            animation: scanMove 2s ease-in-out infinite;
-            box-shadow: 0 0 20px #10b981;
+            animation: scanFloat 2.2s ease-in-out infinite;
+            filter: drop-shadow(0 0 6px #10b981);
         }
-        @keyframes scanMove {
-            0% { top: 18%; opacity: 0.4; }
-            50% { top: 78%; opacity: 1; }
-            100% { top: 18%; opacity: 0.4; }
+        @keyframes scanFloat {
+            0% { top: 20%; opacity: 0.5; }
+            50% { top: 75%; opacity: 1; }
+            100% { top: 20%; opacity: 0.5; }
         }
-        .modal-glass {
-            background: rgba(2, 6, 23, 0.98);
-            backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transform: scale(0.9) translateY(30px);
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        .modal-premium {
+            background: rgba(8, 12, 24, 0.98);
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transform: scale(0.92) translateY(25px);
+            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.2);
         }
-        .modal-glass.active {
+        .modal-premium.active {
             transform: scale(1) translateY(0);
         }
-        .sheet-up {
+        .sheet-slide {
             transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .sheet-up.active {
+        .sheet-slide.active {
             transform: translateY(0);
         }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .badge-status {
-            background: rgba(255,255,255,0.05);
-            border-radius: 100px;
+        .badge-filter {
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 40px;
             padding: 4px 12px;
             font-size: 9px;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
-        button:active { transform: scale(0.96); transition: transform 0.1s; }
-        .stat-card {
-            transition: all 0.2s;
-        }
-        .stat-card:active { transform: scale(0.97); }
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+        button:active { transform: scale(0.96); transition: transform 0.08s; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- HEADER PREMIUM -->
-    <div class="shrink-0 relative z-30 bg-gradient-to-b from-slate-900 to-transparent pb-3">
-        <div class="pt-8 pb-2 px-6 flex justify-between items-center">
+    <!-- HEADER PREMIUM DARK LUXURY -->
+    <div class="shrink-0 relative z-30 pt-6 pb-2 px-6 border-b border-white/5 bg-gradient-to-b from-[#0B0F1C] to-transparent">
+        <div class="flex justify-between items-end">
             <div>
-                <h1 class="text-2xl font-black tracking-tighter bg-gradient-to-r from-white to-emerald-300 bg-clip-text text-transparent">Inprogress</h1>
-                <p class="text-[10px] font-bold text-emerald-400 tracking-[4px] mt-0.5">STAGING · BLHR0</p>
+                <h1 class="text-3xl font-black tracking-tighter bg-gradient-to-r from-white via-emerald-200 to-emerald-400 bg-clip-text text-transparent">INPROGRESS</h1>
+                <p class="text-[10px] font-bold text-emerald-500/80 tracking-[0.2em] mt-0.5">STAGING · BLHR0</p>
             </div>
-            <div class="glass-premium px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
+            <div class="glass-premium px-4 py-2 rounded-full flex items-center gap-2 border border-emerald-500/30">
                 <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                LIVE SCAN
-            </div>
-        </div>
-        
-        <!-- STATISTIK CARD REVISI -->
-        <div class="px-5 py-3 grid grid-cols-3 gap-4">
-            <div class="glass-premium rounded-3xl p-4 text-center border-b-2 border-emerald-500/40">
-                <p class="text-2xl font-black" id="total-today">0</p>
-                <p class="text-[8px] font-black text-slate-400 uppercase tracking-wider">Total Paket</p>
-            </div>
-            <div class="glass-premium rounded-3xl p-4 text-center border-b-2 border-emerald-500/70 bg-emerald-500/5">
-                <p class="text-2xl font-black text-emerald-400" id="scanned-count">0</p>
-                <p class="text-[8px] font-black text-emerald-300 uppercase tracking-wider">Telah Scan</p>
-            </div>
-            <div class="glass-premium rounded-3xl p-4 text-center border-b-2 border-rose-500/50">
-                <p class="text-2xl font-black text-rose-400" id="pending-count">0</p>
-                <p class="text-[8px] font-black text-rose-300 uppercase tracking-wider">Belum Scan</p>
+                <span class="text-[9px] font-black uppercase tracking-wider text-emerald-200">LIVE NODE</span>
             </div>
         </div>
     </div>
 
-    <!-- MAIN LIST SCROLLABLE -->
-    <main class="flex-1 overflow-y-auto px-5 pb-36 no-scrollbar">
-        <div class="mb-3 flex justify-between items-center">
-            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">📦 DAFTAR RESI</span>
-            <span id="filter-indicator" class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Semua</span>
+    <!-- STATISTIK CARD - Dinamis mengikuti filter district & statusFilter -->
+    <div class="px-5 py-5 grid grid-cols-3 gap-4 shrink-0">
+        <div class="stat-card rounded-3xl p-4 text-center bg-black/30 backdrop-blur-sm">
+            <p class="text-3xl font-black tracking-tighter text-white" id="total-today">0</p>
+            <p class="text-[9px] font-black text-emerald-400/70 uppercase tracking-wider mt-1">TOTAL PAKET</p>
         </div>
-        <div id="data-list" class="space-y-3"></div>
+        <div class="stat-card rounded-3xl p-4 text-center bg-black/30 backdrop-blur-sm">
+            <p class="text-3xl font-black tracking-tighter text-emerald-400" id="scanned-count">0</p>
+            <p class="text-[9px] font-black text-emerald-400/70 uppercase tracking-wider mt-1">TELAH SCAN</p>
+        </div>
+        <div class="stat-card rounded-3xl p-4 text-center bg-black/30 backdrop-blur-sm">
+            <p class="text-3xl font-black tracking-tighter text-rose-400" id="pending-count">0</p>
+            <p class="text-[9px] font-black text-rose-400/70 uppercase tracking-wider mt-1">BELUM SCAN</p>
+        </div>
+    </div>
+
+    <!-- ACTIVE FILTERS BAR + RESET -->
+    <div class="px-5 pb-2 flex items-center justify-between shrink-0">
+        <div class="flex flex-wrap gap-2 items-center" id="active-filters-container">
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Filter aktif:</span>
+            <span id="filter-badge-status" class="badge-filter text-emerald-300 text-[9px]">Semua status</span>
+            <span id="filter-badge-district" class="badge-filter text-emerald-300 text-[9px] hidden">Semua kecamatan</span>
+        </div>
+        <button onclick="resetAllFilters()" class="text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white px-3 py-1 rounded-full bg-white/5">Reset filter</button>
+    </div>
+
+    <!-- MAIN LIST DENGAN CUSTOM SCROLL -->
+    <main class="flex-1 overflow-y-auto px-5 pb-36 custom-scroll">
+        <div id="data-list" class="space-y-3 mt-2"></div>
     </main>
 
-    <!-- BOTTOM NAVIGASI PREMIUM -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10 py-3 px-8 flex items-center justify-between z-50">
-        <button onclick="toggleSheet('district-sheet', true)" class="flex flex-col items-center gap-1 text-slate-400 active:text-emerald-400 transition">
+    <!-- BOTTOM NAVIGASI LUXURY -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0A0E1A]/90 backdrop-blur-2xl border-t border-white/10 py-3 px-8 flex items-center justify-between z-50 shadow-2xl">
+        <button onclick="toggleSheet('district-sheet', true)" class="flex flex-col items-center gap-1 text-slate-400 active:text-emerald-400 transition-all duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
             <span class="text-[8px] font-black uppercase">Filter</span>
         </button>
         
-        <button onclick="startScanner()" class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center -translate-y-6 shadow-2xl shadow-emerald-500/40 active:scale-95 transition-all duration-150">
-            <svg class="w-9 h-9 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+        <button onclick="startScanner()" class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center -translate-y-6 shadow-2xl shadow-emerald-500/40 active:scale-95 transition-all duration-150 ring-2 ring-white/20">
+            <svg class="w-10 h-10 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7a4 4 0 11-8 0 4 4 0 018 0zM19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"></path></svg>
         </button>
         
-        <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-1 text-slate-400 active:text-emerald-400 transition">
+        <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-1 text-slate-400 active:text-emerald-400 transition-all duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             <span class="text-[8px] font-black uppercase">Admin</span>
         </button>
     </nav>
 
-    <!-- SCANNER UI UPGRADE (Fungsi Kamera Dipertahankan) -->
+    <!-- SCANNER UI DENGAN FUNGSI KAMERA UTUH -->
     <div id="scanner-ui" class="fixed inset-0 z-[100] bg-black hidden">
-        <video id="video" class="w-full h-full object-cover brightness-110" playsinline autoplay muted></video>
-        <div class="scan-frame pointer-events-none"></div>
-        <div class="scan-line-custom"></div>
-        
-        <div class="absolute top-10 left-5 right-5 flex justify-between">
-            <button onclick="stopScanner()" class="w-12 h-12 glass-premium rounded-2xl backdrop-blur-xl flex items-center justify-center text-white text-xl">✕</button>
+        <video id="video" class="w-full h-full object-cover brightness-110 contrast-125" playsinline autoplay muted></video>
+        <div class="scan-frame-glow pointer-events-none"></div>
+        <div class="scan-line-premium"></div>
+        <div class="absolute top-12 left-5 right-5 flex justify-between">
+            <button onclick="stopScanner()" class="w-12 h-12 glass-premium rounded-2xl backdrop-blur-xl flex items-center justify-center text-white text-xl border border-white/20">✕</button>
             <div class="flex gap-3">
-                <button onclick="toggleManualInput(true)" class="px-5 h-12 glass-premium rounded-2xl text-[10px] font-black uppercase tracking-widest">Tulis Resi</button>
+                <button onclick="toggleManualInput(true)" class="px-5 h-12 glass-premium rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/20">✎ TULIS</button>
                 <button onclick="toggleTorch()" class="w-12 h-12 glass-premium rounded-2xl text-xl flex items-center justify-center">🔦</button>
             </div>
         </div>
-        
-        <div class="absolute bottom-12 left-0 right-0 text-center">
-            <p class="text-[10px] font-bold text-emerald-300 tracking-[4px] bg-black/40 inline-block mx-auto px-6 py-2 rounded-full backdrop-blur">ARAHKAN KE BARCODE / QR</p>
+        <div class="absolute bottom-16 left-0 right-0 text-center">
+            <p class="text-[10px] font-black text-emerald-300 tracking-[3px] bg-black/50 inline-block mx-auto px-5 py-2 rounded-full backdrop-blur-md">ARAHKAN KE BARCODE / QR</p>
         </div>
-
-        <div id="manual-overlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-xl hidden flex-col items-center justify-center px-8 z-20">
-            <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[5px] mb-5">Input AWB Manual</p>
-            <input type="text" id="manual-field" placeholder="CONTOH: BLHR0123456" class="w-full bg-transparent border-b-2 border-emerald-500/60 py-4 text-2xl font-mono font-black text-center outline-none uppercase tracking-wider text-white">
-            <div class="flex gap-5 mt-12 w-full">
-                <button onclick="toggleManualInput(false)" class="flex-1 py-5 glass-premium rounded-2xl font-bold text-sm">Batal</button>
-                <button onclick="processManualEntry()" class="flex-1 py-5 bg-emerald-500 text-slate-950 rounded-2xl font-black text-sm uppercase shadow-lg">Proses</button>
+        <div id="manual-overlay" class="absolute inset-0 bg-[#020617]/95 backdrop-blur-2xl hidden flex-col items-center justify-center px-8 z-30">
+            <p class="text-[12px] font-black text-emerald-400 uppercase tracking-[5px] mb-6">Input AWB Manual</p>
+            <input type="text" id="manual-field" placeholder="cth: BLHR0123456" class="w-full bg-transparent border-b-2 border-emerald-500/60 py-5 text-2xl font-mono font-black text-center outline-none uppercase tracking-wider text-white placeholder:text-slate-600">
+            <div class="flex gap-5 mt-14 w-full">
+                <button onclick="toggleManualInput(false)" class="flex-1 py-5 glass-premium rounded-2xl font-bold text-sm">BATAL</button>
+                <button onclick="processManualEntry()" class="flex-1 py-5 bg-emerald-500 text-slate-950 rounded-2xl font-black text-sm uppercase shadow-xl">PROSES</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL RESULT UPGRADE (INFORMASI INPROGRESS & HARUS DIKIRIM HARI INI) -->
-    <div id="result-sheet" class="fixed inset-0 z-[120] bg-black/80 hidden flex items-center justify-center p-5" onclick="closeResult()">
-        <div id="result-modal" class="w-full max-w-sm modal-glass rounded-[2.5rem] p-7 border border-white/20" onclick="event.stopPropagation()">
-            <div id="res-status-icon" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-5"></div>
+    <!-- MODAL RESULT PREMIUM (INPROGRESS WAJIB KIRIM HARI INI) -->
+    <div id="result-sheet" class="fixed inset-0 z-[120] bg-black/85 hidden flex items-center justify-center p-5" onclick="closeResult()">
+        <div id="result-modal" class="w-full max-w-md modal-premium rounded-[2.5rem] p-7 border border-white/20" onclick="event.stopPropagation()">
+            <div id="res-status-icon" class="w-20 h-20 rounded-2xl mx-auto flex items-center justify-center text-5xl mb-5 shadow-2xl"></div>
             <div class="text-center mb-5">
-                <p id="res-status-text" class="text-[10px] font-black uppercase tracking-[3px] text-emerald-400/70 mb-1"></p>
-                <h2 id="res-awb" class="text-2xl font-black font-mono tracking-tighter break-all">-</h2>
+                <p id="res-status-text" class="text-[11px] font-black uppercase tracking-[4px] text-emerald-400/80 mb-1"></p>
+                <h2 id="res-awb" class="text-2xl font-black font-mono tracking-tighter break-all bg-white/5 inline-block px-4 py-1 rounded-full">-</h2>
             </div>
-            <div id="res-content" class="space-y-4 mb-6"></div>
-            <button onclick="closeResult()" class="w-full py-5 bg-white text-slate-900 rounded-2xl font-black text-[11px] uppercase tracking-wider active:scale-95 transition">LANJUT SCAN</button>
+            <div id="res-content" class="space-y-5 mb-8"></div>
+            <button onclick="closeResult()" class="w-full py-5 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-wider active:scale-95 transition-all">LANJUTKAN SCAN</button>
         </div>
     </div>
 
     <!-- FILTER KECAMATAN SHEET -->
     <div id="district-sheet" class="fixed inset-0 z-[110] bg-black/70 hidden" onclick="toggleSheet('district-sheet', false)">
-        <div class="absolute bottom-0 left-0 right-0 bg-slate-900 rounded-t-[3rem] p-6 sheet-up max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
+        <div class="absolute bottom-0 left-0 right-0 bg-[#0C1022] rounded-t-[3rem] p-6 sheet-slide max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
             <div class="w-14 h-1.5 bg-white/20 rounded-full mx-auto mb-6 shrink-0"></div>
             <div class="mb-6 shrink-0">
-                <h3 class="font-black text-[11px] uppercase tracking-[3px] text-emerald-400 mb-3">Filter Status</h3>
+                <h3 class="font-black text-xs uppercase tracking-[3px] text-emerald-400 mb-4">Filter Status</h3>
                 <div class="grid grid-cols-3 gap-2">
-                    <button onclick="setStatusFilter('all')" id="f-all" class="py-3 glass-premium rounded-xl text-[10px] font-black uppercase">Semua</button>
-                    <button onclick="setStatusFilter('scanned')" id="f-scanned" class="py-3 glass-premium rounded-xl text-[10px] font-black uppercase">Sudah Scan</button>
-                    <button onclick="setStatusFilter('pending')" id="f-pending" class="py-3 glass-premium rounded-xl text-[10px] font-black uppercase">Belum Scan</button>
+                    <button onclick="setStatusFilter('all')" id="f-all" class="py-3.5 glass-premium rounded-xl text-[10px] font-black uppercase transition-all">Semua</button>
+                    <button onclick="setStatusFilter('scanned')" id="f-scanned" class="py-3.5 glass-premium rounded-xl text-[10px] font-black uppercase">Sudah Scan</button>
+                    <button onclick="setStatusFilter('pending')" id="f-pending" class="py-3.5 glass-premium rounded-xl text-[10px] font-black uppercase">Belum Scan</button>
                 </div>
             </div>
-            <h3 class="font-black text-[11px] uppercase tracking-[3px] text-emerald-400 mb-3 shrink-0">📍 Pilih Kecamatan</h3>
-            <div id="district-options" class="grid grid-cols-2 gap-3 overflow-y-auto pb-5 no-scrollbar"></div>
-            <button onclick="toggleSheet('district-sheet', false)" class="mt-6 w-full py-5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl font-black text-xs uppercase tracking-widest shrink-0">Tutup Filter</button>
+            <div class="flex justify-between items-center mb-3 shrink-0">
+                <h3 class="font-black text-xs uppercase tracking-[3px] text-emerald-400">📍 Kecamatan</h3>
+                <button onclick="clearDistrictFilter()" class="text-[9px] font-black text-rose-400/80 bg-rose-500/10 px-3 py-1 rounded-full">Hapus semua kecamatan</button>
+            </div>
+            <div id="district-options" class="grid grid-cols-2 gap-3 overflow-y-auto pb-8 no-scrollbar"></div>
+            <button onclick="toggleSheet('district-sheet', false)" class="mt-6 w-full py-5 bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 rounded-2xl font-black text-xs uppercase tracking-widest shrink-0">Terapkan & Tutup</button>
         </div>
     </div>
 
-    <!-- ADMIN SHEET (CSV & RESET) -->
+    <!-- ADMIN SHEET -->
     <div id="admin-sheet" class="fixed inset-0 z-[110] bg-black/70 hidden" onclick="toggleSheet('admin-sheet', false)">
-        <div class="absolute bottom-0 left-0 right-0 bg-slate-900 rounded-t-[3rem] p-7 sheet-up" onclick="event.stopPropagation()">
+        <div class="absolute bottom-0 left-0 right-0 bg-[#0C1022] rounded-t-[3rem] p-7 sheet-slide" onclick="event.stopPropagation()">
             <div class="w-14 h-1.5 bg-white/20 rounded-full mx-auto mb-8"></div>
             <div class="space-y-5">
                 <button onclick="document.getElementById('file-upload').click(); toggleSheet('admin-sheet', false);" class="w-full py-6 glass-premium rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest border border-white/10">
-                    📤 UPDATE DATA (CSV)
+                    📂 UPDATE CLOUD (CSV)
                 </button>
                 <button onclick="resetCloudData()" class="w-full py-6 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest">
-                    🔥 RESET SEMUA DATA
+                    🧨 RESET SEMUA DATA
                 </button>
-                <p class="text-[8px] text-center text-slate-500 mt-2">Format CSV: header dengan pipe | waybill|receiver_name|receiver_address|receiver_district</p>
+                <p class="text-[8px] text-center text-slate-500 mt-3">Format CSV: header dengan | (pipe) | waybill|receiver_name|receiver_address|receiver_district</p>
             </div>
         </div>
     </div>
-
     <input type="file" id="file-upload" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
 
     <script>
-        // FIREBASE INIT
+        // ========== FIREBASE INIT ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCXxi0dOc3Otq_bUmUDnaOGiMEuBvTOi44",
             authDomain: "sla-core-scanner.firebaseapp.com",
@@ -237,16 +251,19 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        let allData = [], selectedDistricts = new Set(), statusFilter = 'all';
-        let isScanning = false, videoStream = null;
-
-        // AUDIO FEEDBACK (Volume tinggi)
+        let allData = [];
+        let selectedDistricts = new Set();   // filter kecamatan
+        let statusFilter = 'all';            // 'all', 'scanned', 'pending'
+        let isScanning = false;
+        let videoStream = null;
+        
+        // Audio feedback (gain tinggi)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playAlert(type) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            gain.gain.setValueAtTime(4.0, audioCtx.currentTime);
+            gain.gain.setValueAtTime(4.5, audioCtx.currentTime);
             if(type === 'success') {
                 osc.type = 'sine';
                 osc.frequency.value = 1350;
@@ -259,41 +276,52 @@
                 osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             }
         }
-
-        // REALTIME SYNC
-        db.ref('logistic_data').on('value', snap => {
-            const val = snap.val();
-            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
-            renderStats();
-            renderList();
-            renderDistricts();
-        });
-
-        function renderList() {
+        
+        // Helper: filtered data berdasarkan district & status
+        function getFilteredData() {
             let filtered = [...allData];
-            if(statusFilter === 'scanned') filtered = filtered.filter(r => r._scanned === true);
-            if(statusFilter === 'pending') filtered = filtered.filter(r => !r._scanned);
-            if(selectedDistricts.size > 0) filtered = filtered.filter(r => selectedDistricts.has(r.receiver_district));
-            
+            if(selectedDistricts.size > 0) {
+                filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
+            }
+            if(statusFilter === 'scanned') filtered = filtered.filter(item => item._scanned === true);
+            if(statusFilter === 'pending') filtered = filtered.filter(item => !item._scanned);
+            return filtered;
+        }
+        
+        // RENDER STATISTIK DINAMIS (hanya dari data yg sudah di filter district+status)
+        function renderStats() {
+            const filtered = getFilteredData();
+            const total = filtered.length;
+            const scanned = filtered.filter(r => r._scanned).length;
+            const pending = total - scanned;
+            document.getElementById('total-today').textContent = total;
+            document.getElementById('scanned-count').textContent = scanned;
+            document.getElementById('pending-count').textContent = pending;
+        }
+        
+        // RENDER LIST PAKET
+        function renderList() {
+            const filtered = getFilteredData();
             const container = document.getElementById('data-list');
-            if(!filtered.length) {
-                container.innerHTML = `<div class="glass-card p-8 rounded-3xl text-center text-slate-400 text-xs font-bold">📭 Tidak ada data sesuai filter</div>`;
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="glass-card p-10 rounded-3xl text-center text-slate-400 text-xs font-bold border border-dashed border-white/10">📭 Tidak ada data sesuai filter</div>`;
                 return;
             }
-            container.innerHTML = filtered.map(r => `
-                <div class="glass-card p-5 rounded-2xl flex justify-between items-center transition-all ${r._scanned ? 'border-l-8 border-emerald-500 bg-emerald-500/5' : 'border-l-8 border-slate-700'}">
+            container.innerHTML = filtered.map(item => `
+                <div class="glass-card p-5 rounded-2xl flex justify-between items-center transition-all hover:bg-white/5 ${item._scanned ? 'border-l-8 border-emerald-500' : 'border-l-8 border-slate-700'}">
                     <div class="flex-1">
-                        <p class="font-mono text-sm font-black tracking-tight text-white">${r.waybill}</p>
-                        <p class="text-[10px] font-bold text-slate-300 mt-1 truncate max-w-[200px]">${r.receiver_name || 'Nama tidak tersedia'}</p>
-                        <span class="text-[8px] font-black text-slate-400 uppercase mt-1 inline-block">${r.receiver_district || '-'}</span>
+                        <p class="font-mono text-sm font-black tracking-tight text-white">${item.waybill}</p>
+                        <p class="text-[11px] font-semibold text-slate-300 mt-1 truncate max-w-[220px]">${item.receiver_name || '—'}</p>
+                        <span class="text-[9px] font-black text-emerald-400/80 uppercase mt-1 inline-block">${item.receiver_district || '-'}</span>
                     </div>
                     <div class="text-right">
-                        ${r._scanned ? `<span class="badge-status bg-emerald-500/20 text-emerald-300">✓ TERSEDIA</span>` : `<span class="badge-status bg-rose-500/20 text-rose-300">⚠ BELUM SCAN</span>`}
+                        ${item._scanned ? `<span class="bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-full text-[9px] font-black uppercase">✓ TERSEDIA</span>` : `<span class="bg-rose-500/20 text-rose-300 px-3 py-1.5 rounded-full text-[9px] font-black uppercase">⚠ BELUM SCAN</span>`}
                     </div>
                 </div>
             `).join('');
         }
-
+        
+        // Render daftar kecamatan di sheet
         function renderDistricts() {
             const dists = [...new Set(allData.map(r => r.receiver_district).filter(Boolean))].sort();
             const container = document.getElementById('district-options');
@@ -304,23 +332,66 @@
                     ${d}
                 </div>
             `).join('');
+            updateFilterBadges();
         }
         
         window.toggleDistrict = function(d) {
             if(selectedDistricts.has(d)) selectedDistricts.delete(d);
             else selectedDistricts.add(d);
+            renderStats();
+            renderList();
+            renderDistricts();   // update tampilan tombol
+        };
+        
+        function clearDistrictFilter() {
+            selectedDistricts.clear();
+            renderStats();
             renderList();
             renderDistricts();
+            updateFilterBadges();
         }
-
-        function renderStats() {
-            const scanned = allData.filter(r => r._scanned).length;
-            document.getElementById('total-today').textContent = allData.length;
-            document.getElementById('scanned-count').textContent = scanned;
-            document.getElementById('pending-count').textContent = allData.length - scanned;
+        
+        function setStatusFilter(filter) {
+            statusFilter = filter;
+            // update tampilan tombol di sheet
+            ['all','scanned','pending'].forEach(f => {
+                const btn = document.getElementById(`f-${f}`);
+                if(btn) {
+                    if(statusFilter === f) btn.className = "py-3.5 bg-emerald-500 text-black rounded-xl text-[10px] font-black uppercase shadow-lg";
+                    else btn.className = "py-3.5 glass-premium rounded-xl text-[10px] font-black uppercase text-slate-300";
+                }
+            });
+            renderStats();
+            renderList();
+            updateFilterBadges();
         }
-
-        // SCANNER LOGIC (Pertahankan fungsi asli + BarcodeDetector)
+        
+        function resetAllFilters() {
+            selectedDistricts.clear();
+            statusFilter = 'all';
+            setStatusFilter('all');
+            renderDistricts();
+            renderStats();
+            renderList();
+            updateFilterBadges();
+        }
+        
+        function updateFilterBadges() {
+            const statusText = statusFilter === 'all' ? 'Semua status' : (statusFilter === 'scanned' ? 'Sudah scan' : 'Belum scan');
+            const statusBadge = document.getElementById('filter-badge-status');
+            if(statusBadge) statusBadge.textContent = statusText;
+            
+            const districtBadge = document.getElementById('filter-badge-district');
+            if(selectedDistricts.size === 0) {
+                districtBadge.classList.add('hidden');
+                districtBadge.textContent = '';
+            } else {
+                districtBadge.classList.remove('hidden');
+                districtBadge.textContent = `${selectedDistricts.size} kecamatan terpilih`;
+            }
+        }
+        
+        // ========== SCANNER LOGIC (tetap utuh) ==========
         async function startScanner() {
             const ui = document.getElementById('scanner-ui');
             ui.classList.remove('hidden');
@@ -334,11 +405,11 @@
                 requestAnimationFrame(scanLoop);
             } catch(e) { console.error(e); stopScanner(); }
         }
-
+        
         async function scanLoop() {
             if (!isScanning) return;
             const videoElem = document.getElementById('video');
-            if(videoElem.readyState < 2) { setTimeout(()=>requestAnimationFrame(scanLoop), 100); return; }
+            if(videoElem.readyState < 2) { setTimeout(()=>requestAnimationFrame(scanLoop), 120); return; }
             try {
                 if ('BarcodeDetector' in window) {
                     const detector = new BarcodeDetector({ formats: ['code_128', 'qr_code', 'ean_13', 'code_39'] });
@@ -347,18 +418,15 @@
                         handleProcess(barcodes[0].rawValue);
                         return;
                     }
-                } else {
-                    console.warn("BarcodeDetector tidak support, fallback skipped");
                 }
             } catch(e) {}
             setTimeout(() => requestAnimationFrame(scanLoop), 100);
         }
-
+        
         function handleProcess(code) {
             if (!isScanning) return;
             const match = allData.find(r => r.waybill === code);
             if (match) {
-                // Update database sebagai scanned
                 db.ref(`logistic_data/${match.fbKey}`).update({ _scanned: true });
                 playAlert('success');
                 showResult(true, match);
@@ -368,42 +436,39 @@
             }
             isScanning = false;
         }
-
-        // MENAMPILKAN RESULT DENGAN PESAN KHUSUS "INPROGRESS -> HARUS DIKIRIM HARI INI"
+        
         function showResult(success, data) {
             const modal = document.getElementById('result-modal');
             const iconDiv = document.getElementById('res-status-icon');
             if(success) {
-                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-5 bg-emerald-500 text-black";
+                iconDiv.className = "w-20 h-20 rounded-2xl mx-auto flex items-center justify-center text-5xl mb-5 bg-emerald-500 text-black shadow-xl";
                 iconDiv.textContent = '✓';
                 document.getElementById('res-status-text').textContent = 'INPROGRESS • PAKET DITEMUKAN';
-                // Detail informasi tambahan: INPROGRESS dan harus dikirim hari ini
-                const extraMsg = `<div class="glass-premium p-4 rounded-2xl text-center border border-emerald-500/30">
-                                    <p class="text-[10px] font-black text-emerald-400 uppercase tracking-wider">⚡ STATUS INPROGRESS</p>
-                                    <p class="text-sm font-bold text-white mt-1">Harus dikirim HARI INI!</p>
-                                    <p class="text-[8px] text-slate-400 mt-1">Segera proses pengiriman ke alamat tujuan</p>
-                                  </div>`;
                 document.getElementById('res-content').innerHTML = `
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         <div class="glass-card p-4 rounded-xl">
-                            <p class="text-[9px] font-black opacity-50 uppercase">Nama Penerima</p>
+                            <p class="text-[9px] font-black text-emerald-400/70 uppercase tracking-wider">Nama Penerima</p>
                             <p class="text-base font-bold text-white">${data.receiver_name || '-'}</p>
                         </div>
                         <div class="glass-card p-4 rounded-xl">
-                            <p class="text-[9px] font-black opacity-50 uppercase">Alamat Lengkap</p>
+                            <p class="text-[9px] font-black text-emerald-400/70 uppercase tracking-wider">Alamat / Kecamatan</p>
                             <p class="text-xs font-medium text-slate-200">${data.receiver_address || 'Alamat tidak tersedia'}</p>
                             <p class="text-sm font-black text-emerald-400 mt-1">${data.receiver_district || '-'}</p>
                         </div>
-                        ${extraMsg}
+                        <div class="bg-emerald-500/10 p-4 rounded-xl text-center border border-emerald-500/30">
+                            <p class="text-[11px] font-black text-emerald-400 uppercase tracking-wider">⚡ INPROGRESS</p>
+                            <p class="text-sm font-black text-white mt-1">WAJIB DIKIRIM HARI INI !</p>
+                            <p class="text-[9px] text-slate-400 mt-1">Segera proses ke alamat tujuan</p>
+                        </div>
                     </div>
                 `;
             } else {
-                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-5 bg-rose-500 text-white";
+                iconDiv.className = "w-20 h-20 rounded-2xl mx-auto flex items-center justify-center text-5xl mb-5 bg-rose-500 text-white shadow-xl";
                 iconDiv.textContent = '✕';
                 document.getElementById('res-status-text').textContent = 'PAKET TIDAK TERDAFTAR';
                 document.getElementById('res-content').innerHTML = `
                     <div class="text-center py-6">
-                        <p class="text-rose-400 font-black text-sm">BUKAN INPROGRESS</p>
+                        <p class="text-rose-400 font-black text-lg">BUKAN INPROGRESS</p>
                         <p class="text-[10px] text-slate-400 mt-2">Resi tidak ada dalam database staging.<br>Periksa kembali atau hubungi admin.</p>
                     </div>
                 `;
@@ -413,7 +478,7 @@
             setTimeout(() => modal.classList.add('active'), 20);
             if(navigator.vibrate) navigator.vibrate(success ? [100,50,100] : [300]);
         }
-
+        
         function closeResult() {
             const modal = document.getElementById('result-modal');
             modal.classList.remove('active');
@@ -422,16 +487,17 @@
                 if(!document.getElementById('scanner-ui').classList.contains('hidden')) startScanner();
             }, 250);
         }
-
+        
         function stopScanner() {
             isScanning = false;
             if(videoStream) videoStream.getTracks().forEach(t => t.stop());
             document.getElementById('scanner-ui').classList.add('hidden');
             document.body.style.overflow = '';
         }
-
+        
         function toggleManualInput(show) {
-            document.getElementById('manual-overlay').classList.toggle('hidden', !show);
+            const overlay = document.getElementById('manual-overlay');
+            overlay.classList.toggle('hidden', !show);
             if(show) document.getElementById('manual-field').focus();
         }
         function processManualEntry() {
@@ -445,29 +511,19 @@
                 track.applyConstraints({ advanced: [{ torch: newState }] });
             }
         }
-        window.setStatusFilter = function(f) {
-            statusFilter = f;
-            ['all','scanned','pending'].forEach(id => {
-                const btn = document.getElementById(`f-${id}`);
-                if(btn) btn.className = (statusFilter === id) ? 'py-3 bg-emerald-500 text-slate-950 rounded-xl text-[10px] font-black uppercase shadow' : 'py-3 glass-premium rounded-xl text-[10px] font-black uppercase text-slate-300';
-            });
-            const indicator = document.getElementById('filter-indicator');
-            if(indicator) indicator.innerText = f === 'all' ? 'Semua' : (f === 'scanned' ? 'Sudah Scan' : 'Belum Scan');
-            renderList();
-        };
-        window.toggleSheet = function(id, show) {
+        function toggleSheet(id, show) {
             const el = document.getElementById(id);
             if(show) {
                 el.classList.remove('hidden');
-                setTimeout(() => el.querySelector('.sheet-up').classList.add('active'), 10);
+                setTimeout(() => el.querySelector('.sheet-slide').classList.add('active'), 10);
             } else {
-                const sheet = el.querySelector('.sheet-up');
+                const sheet = el.querySelector('.sheet-slide');
                 sheet.classList.remove('active');
                 setTimeout(() => el.classList.add('hidden'), 350);
             }
-        };
+        }
         function secureAdminMenu() { if(prompt("🔐 MASUKKAN PIN ADMIN:") === "8989") toggleSheet('admin-sheet', true); else alert("PIN Salah"); }
-        function resetCloudData() { if(confirm("⚠️ PERINGATAN: Semua data akan dihapus permanen! Lanjutkan?")) { db.ref('logistic_data').set(null); toggleSheet('admin-sheet', false); alert("Data telah direset."); } }
+        function resetCloudData() { if(confirm("⚠️ PERINGATAN: Semua data staging akan dihapus permanen! Lanjutkan?")) { db.ref('logistic_data').set(null); toggleSheet('admin-sheet', false); alert("Data telah direset."); } }
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -485,6 +541,20 @@
             await db.ref('logistic_data').set(newData);
             alert(`✅ Upload sukses! ${Object.keys(newData).length} resi terupdate.`);
         }
+        
+        // realtime listener
+        db.ref('logistic_data').on('value', snap => {
+            const val = snap.val();
+            allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
+            renderStats();
+            renderList();
+            renderDistricts();
+        });
+        
+        window.setStatusFilter = setStatusFilter;
+        window.toggleDistrict = toggleDistrict;
+        window.clearDistrictFilter = clearDistrictFilter;
+        window.resetAllFilters = resetAllFilters;
     </script>
 </body>
 </html>

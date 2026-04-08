@@ -10,8 +10,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Plus Jakarta Sans (font utama) & JetBrains Mono untuk kode/resi -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Html5QrCode (ZXing) untuk scanning barcode kecil yang lebih tajam -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <!-- Font Plus Jakarta -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -21,57 +24,57 @@
             font-family: 'JetBrains Mono', monospace;
         }
         body {
-            background: #0B0E17;
-            background-image: radial-gradient(circle at 30% 10%, rgba(16, 185, 129, 0.07) 0%, transparent 55%);
+            background: #0A0C12;
+            background-image: radial-gradient(circle at 30% 10%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
         }
-        /* Premium Glassmorphism menyeluruh */
+        /* Glassmorphism Premium - Warna Profesional (Teal & Gold accent) */
         .glass-premium {
-            background: rgba(18, 24, 38, 0.75);
+            background: rgba(18, 22, 32, 0.75);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
         }
         .glass-card {
-            background: rgba(15, 20, 30, 0.6);
+            background: rgba(15, 19, 28, 0.65);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.04);
             transition: all 0.2s ease;
         }
         .glass-dark-panel {
-            background: rgba(8, 12, 20, 0.85);
+            background: rgba(8, 11, 18, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Stat card */
+        /* Stat Card dengan aksen Teal */
         .stat-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02));
-            border-bottom: 2px solid rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(20, 184, 166, 0.02));
+            border-bottom: 2px solid rgba(20, 184, 166, 0.5);
             transition: all 0.2s;
             cursor: pointer;
         }
         .stat-card:active { transform: scale(0.97); }
         .stat-card.filter-active {
-            border-bottom-color: #10b981;
-            box-shadow: 0 4px 14px -5px rgba(16, 185, 129, 0.5);
-            background: rgba(16, 185, 129, 0.15);
+            border-bottom-color: #14b8a6;
+            box-shadow: 0 4px 14px -5px rgba(20, 184, 166, 0.5);
+            background: rgba(20, 184, 166, 0.12);
         }
-        /* Scanner Frame */
+        /* Scanner Frame Premium */
         .scan-frame-glow {
             position: absolute;
             inset: 10%;
-            border: 1.5px solid rgba(16, 185, 129, 0.7);
+            border: 1.5px solid rgba(20, 184, 166, 0.7);
             border-radius: 56px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(20, 184, 166, 0.2);
         }
         .scan-line-premium {
             position: absolute;
             left: 8%;
             width: 84%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #10b981, #a3e635, #10b981, transparent);
+            background: linear-gradient(90deg, transparent, #14b8a6, #5eead4, #14b8a6, transparent);
             border-radius: 4px;
             animation: scanFloat 2.2s ease-in-out infinite;
-            filter: drop-shadow(0 0 5px #10b981);
+            filter: drop-shadow(0 0 5px #14b8a6);
         }
         @keyframes scanFloat {
             0% { top: 20%; opacity: 0.5; }
@@ -80,9 +83,9 @@
         }
         /* Modal Premium */
         .modal-premium {
-            background: rgba(10, 14, 23, 0.98);
+            background: rgba(10, 13, 20, 0.98);
             backdrop-filter: blur(32px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transform: scale(0.92) translateY(25px);
             transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.2);
         }
@@ -97,7 +100,7 @@
             transform: translateY(0);
         }
         .badge-filter {
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(20, 184, 166, 0.15);
             border-radius: 40px;
             padding: 3px 10px;
             font-size: 8px;
@@ -108,38 +111,47 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .custom-scroll::-webkit-scrollbar { width: 3px; }
         .custom-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
         /* Input manual styling */
         .awb-input {
             background: rgba(255,255,255,0.05);
-            border-bottom: 2px solid #10b981;
-            color: white;
+            border-bottom: 2px solid #14b8a6;
+            color: #f1f5f9;
             letter-spacing: 1px;
         }
         .awb-input:focus {
             outline: none;
-            border-bottom-color: #34d399;
+            border-bottom-color: #5eead4;
             background: rgba(255,255,255,0.08);
         }
         .awb-input::placeholder {
-            color: #4b5563;
+            color: #64748b;
             font-size: 12px;
-            letter-spacing: normal;
+        }
+        /* Warna teks selalu kontras */
+        .text-accent {
+            color: #14b8a6;
+        }
+        .border-accent {
+            border-color: #14b8a6;
+        }
+        .bg-accent {
+            background: #14b8a6;
         }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
     <!-- HEADER PREMIUM -->
-    <div class="shrink-0 relative z-30 pt-6 pb-2 px-6 border-b border-white/5 bg-gradient-to-b from-[#0B0E17] to-transparent">
+    <div class="shrink-0 relative z-30 pt-6 pb-2 px-6 border-b border-white/5 bg-gradient-to-b from-[#0A0C12] to-transparent">
         <div class="flex justify-between items-end">
             <div>
-                <h1 class="text-2xl font-extrabold tracking-tighter bg-gradient-to-r from-white via-emerald-200 to-emerald-400 bg-clip-text text-transparent">INPROGRESS</h1>
-                <p class="text-[8px] font-bold text-emerald-500/80 tracking-[0.2em] mt-0.5">STAGING · BLHR0</p>
+                <h1 class="text-2xl font-extrabold tracking-tighter bg-gradient-to-r from-white via-teal-200 to-teal-400 bg-clip-text text-transparent">INPROGRESS</h1>
+                <p class="text-[8px] font-bold text-teal-400/80 tracking-[0.2em] mt-0.5">STAGING · BLHR0</p>
             </div>
-            <div class="glass-premium px-3 py-1.5 rounded-full flex items-center gap-2 border border-emerald-500/30">
-                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                <span class="text-[7px] font-black uppercase tracking-wider text-emerald-200">LIVE</span>
+            <div class="glass-premium px-3 py-1.5 rounded-full flex items-center gap-2 border border-teal-500/30">
+                <span class="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse"></span>
+                <span class="text-[7px] font-black uppercase tracking-wider text-teal-200">LIVE</span>
             </div>
         </div>
     </div>
@@ -148,15 +160,15 @@
     <div class="px-5 py-4 grid grid-cols-3 gap-3 shrink-0">
         <div id="stat-total-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel">
             <p class="text-2xl font-black tracking-tighter text-white" id="total-today">0</p>
-            <p class="text-[8px] font-bold text-emerald-400/80 uppercase tracking-wider mt-0.5">TOTAL PAKET</p>
+            <p class="text-[8px] font-bold text-teal-400/80 uppercase tracking-wider mt-0.5">TOTAL PAKET</p>
         </div>
         <div id="stat-scanned-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel">
-            <p class="text-2xl font-black tracking-tighter text-emerald-400" id="scanned-count">0</p>
-            <p class="text-[8px] font-bold text-emerald-400/80 uppercase tracking-wider mt-0.5">TELAH SCAN</p>
+            <p class="text-2xl font-black tracking-tighter text-teal-400" id="scanned-count">0</p>
+            <p class="text-[8px] font-bold text-teal-400/80 uppercase tracking-wider mt-0.5">TELAH SCAN</p>
         </div>
         <div id="stat-pending-card" class="stat-card rounded-2xl p-3 text-center glass-dark-panel">
-            <p class="text-2xl font-black tracking-tighter text-rose-400" id="pending-count">0</p>
-            <p class="text-[8px] font-bold text-rose-400/80 uppercase tracking-wider mt-0.5">BELUM SCAN</p>
+            <p class="text-2xl font-black tracking-tighter text-amber-400" id="pending-count">0</p>
+            <p class="text-[8px] font-bold text-amber-400/80 uppercase tracking-wider mt-0.5">BELUM SCAN</p>
         </div>
     </div>
 
@@ -164,8 +176,8 @@
     <div class="px-5 pb-2 flex items-center justify-between shrink-0">
         <div class="flex flex-wrap gap-2 items-center" id="active-filters-container">
             <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Filter:</span>
-            <span id="filter-badge-status" class="badge-filter text-emerald-300">Semua status</span>
-            <span id="filter-badge-district" class="badge-filter text-emerald-300 hidden">Semua kecamatan</span>
+            <span id="filter-badge-status" class="badge-filter text-teal-300">Semua status</span>
+            <span id="filter-badge-district" class="badge-filter text-teal-300 hidden">Semua kecamatan</span>
         </div>
         <button onclick="resetAllFilters()" class="text-[8px] font-black uppercase tracking-wider text-slate-400 hover:text-white px-2 py-1 rounded-full bg-white/5">Reset</button>
     </div>
@@ -177,58 +189,57 @@
 
     <!-- BOTTOM NAVIGASI -->
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0A0E1A]/90 backdrop-blur-2xl border-t border-white/10 py-2.5 px-8 flex items-center justify-between z-50 shadow-2xl">
-        <button onclick="toggleSheet('district-sheet', true)" class="flex flex-col items-center gap-0.5 text-slate-400 active:text-emerald-400 transition-all">
+        <button onclick="toggleSheet('district-sheet', true)" class="flex flex-col items-center gap-0.5 text-slate-400 active:text-teal-400 transition-all">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
             <span class="text-[7px] font-black uppercase">Filter</span>
         </button>
         
-        <button onclick="startScanner()" class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center -translate-y-5 shadow-2xl shadow-emerald-500/40 active:scale-95 transition-all duration-150 ring-2 ring-white/20">
+        <button onclick="startScanner()" class="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-700 rounded-full flex items-center justify-center -translate-y-5 shadow-2xl shadow-teal-500/40 active:scale-95 transition-all duration-150 ring-2 ring-white/20">
             <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7a4 4 0 11-8 0 4 4 0 018 0zM19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"></path></svg>
         </button>
         
-        <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-0.5 text-slate-400 active:text-emerald-400 transition-all">
+        <button onclick="secureAdminMenu()" class="flex flex-col items-center gap-0.5 text-slate-400 active:text-teal-400 transition-all">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             <span class="text-[7px] font-black uppercase">Admin</span>
         </button>
     </nav>
 
-    <!-- SCANNER UI -->
+    <!-- SCANNER UI - DENGAN HTML5QRCODE (ZXing) untuk scan lebih tajam -->
     <div id="scanner-ui" class="fixed inset-0 z-[100] bg-black hidden">
-        <video id="video" class="w-full h-full object-cover brightness-110 contrast-125" playsinline autoplay muted></video>
+        <div id="qr-reader" style="width: 100%; height: 100%;"></div>
         <div class="scan-frame-glow pointer-events-none"></div>
         <div class="scan-line-premium"></div>
-        <div class="absolute top-10 left-4 right-4 flex justify-between">
+        <div class="absolute top-10 left-4 right-4 flex justify-between z-20">
             <button onclick="stopScanner()" class="w-10 h-10 glass-premium rounded-xl backdrop-blur-xl flex items-center justify-center text-white text-lg border border-white/20">✕</button>
             <div class="flex gap-2">
                 <button onclick="toggleManualInput(true)" class="px-4 h-10 glass-premium rounded-xl text-[9px] font-black uppercase tracking-widest border border-white/20">✎ TULIS</button>
-                <button onclick="toggleTorch()" class="w-10 h-10 glass-premium rounded-xl text-lg flex items-center justify-center">🔦</button>
+                <button id="torch-btn" onclick="toggleTorch()" class="w-10 h-10 glass-premium rounded-xl text-lg flex items-center justify-center">🔦</button>
             </div>
         </div>
-        <div class="absolute bottom-14 left-0 right-0 text-center">
-            <p class="text-[8px] font-black text-emerald-300 tracking-[3px] bg-black/50 inline-block mx-auto px-4 py-1.5 rounded-full backdrop-blur-md">ARAHKAN KE BARCODE / QR</p>
+        <div class="absolute bottom-14 left-0 right-0 text-center z-20">
+            <p class="text-[8px] font-black text-teal-300 tracking-[3px] bg-black/50 inline-block mx-auto px-4 py-1.5 rounded-full backdrop-blur-md">ARAHKAN KE BARCODE / QR</p>
         </div>
         
-        <!-- MANUAL INPUT OVERLAY - DIPERBAIKI: Warna terang, posisi agak turun -->
-        <div id="manual-overlay" class="absolute inset-0 bg-[#0A0E1A]/98 backdrop-blur-2xl hidden flex-col items-center justify-start pt-32 px-8 z-30">
+        <!-- MANUAL INPUT OVERLAY -->
+        <div id="manual-overlay" class="absolute inset-0 bg-[#0A0C12]/98 backdrop-blur-2xl hidden flex-col items-center justify-start pt-32 px-8 z-30">
             <div class="w-full max-w-sm">
-                <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[4px] text-center mb-6">INPUT RESI MANUAL</p>
-                <input type="text" id="manual-field" placeholder="Masukkan nomor resi / AWB" class="awb-input w-full bg-white/10 border-b-2 border-emerald-500/70 py-4 text-xl font-mono font-bold text-center outline-none tracking-wider text-white rounded-lg px-3">
+                <p class="text-[11px] font-black text-teal-400 uppercase tracking-[4px] text-center mb-6">INPUT RESI MANUAL</p>
+                <input type="text" id="manual-field" placeholder="Masukkan nomor resi / AWB" class="awb-input w-full bg-white/10 border-b-2 border-teal-500/70 py-4 text-xl font-mono font-bold text-center outline-none tracking-wider text-white rounded-lg px-3">
                 <div class="flex gap-4 mt-10 w-full">
                     <button onclick="toggleManualInput(false)" class="flex-1 py-4 glass-premium rounded-xl font-bold text-sm text-white border border-white/10">BATAL</button>
-                    <button onclick="processManualEntry()" class="flex-1 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-black text-sm uppercase shadow-xl">PROSES</button>
+                    <button onclick="processManualEntry()" class="flex-1 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-black text-sm uppercase shadow-xl">PROSES</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL RESULT - DIPERBAIKI: Nomor resi lebih terang (warna putih solid) -->
+    <!-- MODAL RESULT - Premium dengan kontras tinggi -->
     <div id="result-sheet" class="fixed inset-0 z-[120] bg-black/85 hidden flex items-center justify-center p-5" onclick="closeResult()">
         <div id="result-modal" class="w-full max-w-md modal-premium rounded-3xl p-6 border border-white/20" onclick="event.stopPropagation()">
             <div id="res-status-icon" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-2xl"></div>
             <div class="text-center mb-5">
-                <p id="res-status-text" class="text-[9px] font-black uppercase tracking-[3px] text-emerald-400/90 mb-2"></p>
-                <!-- AWB dengan warna terang (putih solid + background gelap) -->
-                <h2 id="res-awb" class="text-xl font-black font-mono-custom tracking-tighter break-all bg-black/40 inline-block px-4 py-2 rounded-full text-white border border-white/20 shadow-md">-</h2>
+                <p id="res-status-text" class="text-[9px] font-black uppercase tracking-[3px] text-teal-400/90 mb-2"></p>
+                <h2 id="res-awb" class="text-xl font-black font-mono-custom tracking-tighter break-all bg-black/50 inline-block px-4 py-2 rounded-full text-white border border-white/20 shadow-md">-</h2>
             </div>
             <div id="res-content" class="space-y-4 mb-6"></div>
             <button onclick="closeResult()" class="w-full py-4 bg-white text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all shadow-lg">LANJUTKAN SCAN</button>
@@ -240,7 +251,7 @@
         <div class="absolute bottom-0 left-0 right-0 bg-[#0C1022] rounded-t-3xl p-5 sheet-slide max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
             <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5 shrink-0"></div>
             <div class="mb-5 shrink-0">
-                <h3 class="font-black text-[10px] uppercase tracking-[3px] text-emerald-400 mb-3">Filter Status</h3>
+                <h3 class="font-black text-[10px] uppercase tracking-[3px] text-teal-400 mb-3">Filter Status</h3>
                 <div class="grid grid-cols-3 gap-2">
                     <button onclick="setStatusFilter('all')" id="f-all" class="py-3 glass-premium rounded-xl text-[9px] font-black uppercase transition-all">Semua</button>
                     <button onclick="setStatusFilter('scanned')" id="f-scanned" class="py-3 glass-premium rounded-xl text-[9px] font-black uppercase">Sudah Scan</button>
@@ -248,11 +259,11 @@
                 </div>
             </div>
             <div class="flex justify-between items-center mb-2 shrink-0">
-                <h3 class="font-black text-[10px] uppercase tracking-[3px] text-emerald-400">📍 Kecamatan</h3>
-                <button onclick="clearDistrictFilter()" class="text-[8px] font-black text-rose-400/80 bg-rose-500/10 px-2 py-1 rounded-full">Hapus semua</button>
+                <h3 class="font-black text-[10px] uppercase tracking-[3px] text-teal-400">📍 Kecamatan</h3>
+                <button onclick="clearDistrictFilter()" class="text-[8px] font-black text-amber-400/80 bg-amber-500/10 px-2 py-1 rounded-full">Hapus semua</button>
             </div>
             <div id="district-options" class="grid grid-cols-2 gap-2 overflow-y-auto pb-6 no-scrollbar"></div>
-            <button onclick="toggleSheet('district-sheet', false)" class="mt-5 w-full py-4 bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 rounded-xl font-black text-[9px] uppercase tracking-widest shrink-0">Terapkan & Tutup</button>
+            <button onclick="toggleSheet('district-sheet', false)" class="mt-5 w-full py-4 bg-teal-500/10 border border-teal-500/40 text-teal-400 rounded-xl font-black text-[9px] uppercase tracking-widest shrink-0">Terapkan & Tutup</button>
         </div>
     </div>
 
@@ -290,8 +301,8 @@
         let allData = [];
         let selectedDistricts = new Set();
         let statusFilter = 'all';
-        let isScanning = false;
-        let videoStream = null;
+        let html5QrCode = null;
+        let isScannerActive = false;
         
         // Audio feedback
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -315,9 +326,7 @@
         
         function getFilteredData() {
             let filtered = [...allData];
-            if(selectedDistricts.size > 0) {
-                filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
-            }
+            if(selectedDistricts.size > 0) filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
             if(statusFilter === 'scanned') filtered = filtered.filter(item => item._scanned === true);
             if(statusFilter === 'pending') filtered = filtered.filter(item => !item._scanned);
             return filtered;
@@ -341,14 +350,14 @@
                 return;
             }
             container.innerHTML = filtered.map(item => `
-                <div class="glass-card p-4 rounded-xl flex justify-between items-center transition-all hover:bg-white/5 ${item._scanned ? 'border-l-4 border-emerald-500' : 'border-l-4 border-slate-700'}">
+                <div class="glass-card p-4 rounded-xl flex justify-between items-center transition-all hover:bg-white/5 ${item._scanned ? 'border-l-4 border-teal-500' : 'border-l-4 border-slate-700'}">
                     <div class="flex-1">
                         <p class="font-mono-custom text-xs font-black tracking-tight text-white">${item.waybill}</p>
                         <p class="text-[9px] font-semibold text-slate-300 mt-0.5 truncate max-w-[200px]">${item.receiver_name || '—'}</p>
-                        <span class="text-[8px] font-black text-emerald-400/80 uppercase mt-0.5 inline-block">${item.receiver_district || '-'}</span>
+                        <span class="text-[8px] font-black text-teal-400/80 uppercase mt-0.5 inline-block">${item.receiver_district || '-'}</span>
                     </div>
                     <div class="text-right">
-                        ${item._scanned ? `<span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full text-[8px] font-black uppercase">✓ TERSEDIA</span>` : `<span class="bg-rose-500/20 text-rose-300 px-2 py-1 rounded-full text-[8px] font-black uppercase">⚠ BELUM</span>`}
+                        ${item._scanned ? `<span class="bg-teal-500/20 text-teal-300 px-2 py-1 rounded-full text-[8px] font-black uppercase">✓ TERSEDIA</span>` : `<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full text-[8px] font-black uppercase">⚠ BELUM</span>`}
                     </div>
                 </div>
             `).join('');
@@ -360,7 +369,7 @@
             if(!container) return;
             container.innerHTML = dists.map(d => `
                 <div onclick="toggleDistrict('${d.replace(/'/g, "\\'")}')" 
-                     class="p-3 glass-premium rounded-xl text-center text-[9px] font-black uppercase cursor-pointer transition-all ${selectedDistricts.has(d) ? 'bg-emerald-500 text-black shadow-lg border-emerald-300' : 'text-slate-300 border-white/5'}">
+                     class="p-3 glass-premium rounded-xl text-center text-[9px] font-black uppercase cursor-pointer transition-all ${selectedDistricts.has(d) ? 'bg-teal-500 text-black shadow-lg border-teal-300' : 'text-slate-300 border-white/5'}">
                     ${d}
                 </div>
             `).join('');
@@ -370,34 +379,19 @@
         window.toggleDistrict = function(d) {
             if(selectedDistricts.has(d)) selectedDistricts.delete(d);
             else selectedDistricts.add(d);
-            renderStats();
-            renderList();
-            renderDistricts();
+            renderStats(); renderList(); renderDistricts();
         };
         
-        function clearDistrictFilter() {
-            selectedDistricts.clear();
-            renderStats();
-            renderList();
-            renderDistricts();
-            updateFilterBadges();
-        }
-        
+        function clearDistrictFilter() { selectedDistricts.clear(); renderStats(); renderList(); renderDistricts(); updateFilterBadges(); }
         function setStatusFilter(filter) {
             statusFilter = filter;
             ['all','scanned','pending'].forEach(f => {
                 const btn = document.getElementById(`f-${f}`);
-                if(btn) {
-                    if(statusFilter === f) btn.className = "py-3 bg-emerald-500 text-black rounded-xl text-[9px] font-black uppercase shadow-lg";
-                    else btn.className = "py-3 glass-premium rounded-xl text-[9px] font-black uppercase text-slate-300";
-                }
+                if(btn) btn.className = statusFilter === f ? "py-3 bg-teal-500 text-black rounded-xl text-[9px] font-black uppercase shadow-lg" : "py-3 glass-premium rounded-xl text-[9px] font-black uppercase text-slate-300";
             });
-            renderStats();
-            renderList();
-            updateFilterBadges();
+            renderStats(); renderList(); updateFilterBadges();
             document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('filter-active'));
         }
-        
         function applyQuickFilter(type) {
             if(type === 'scanned') setStatusFilter('scanned');
             else if(type === 'pending') setStatusFilter('pending');
@@ -406,19 +400,12 @@
             else if(type === 'pending') document.getElementById('stat-pending-card').classList.add('filter-active');
             else document.getElementById('stat-total-card').classList.add('filter-active');
         }
-        
         function resetAllFilters() {
-            selectedDistricts.clear();
-            statusFilter = 'all';
-            setStatusFilter('all');
-            renderDistricts();
-            renderStats();
-            renderList();
-            updateFilterBadges();
+            selectedDistricts.clear(); statusFilter = 'all'; setStatusFilter('all');
+            renderDistricts(); renderStats(); renderList(); updateFilterBadges();
             document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('filter-active'));
             document.getElementById('stat-total-card').classList.add('filter-active');
         }
-        
         function updateFilterBadges() {
             const statusText = statusFilter === 'all' ? 'Semua status' : (statusFilter === 'scanned' ? 'Sudah scan' : 'Belum scan');
             const statusBadge = document.getElementById('filter-badge-status');
@@ -428,37 +415,71 @@
             else { districtBadge.classList.remove('hidden'); districtBadge.textContent = `${selectedDistricts.size} kecamatan`; }
         }
         
-        // ========== SCANNER LOGIC ==========
+        // ========== SCANNER UPGRADE dengan Html5QrCode (ZXing) ==========
         async function startScanner() {
-            const ui = document.getElementById('scanner-ui');
-            ui.classList.remove('hidden');
+            const scannerUi = document.getElementById('scanner-ui');
+            scannerUi.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            
+            if (html5QrCode) {
+                try { await html5QrCode.stop(); } catch(e) {}
+                html5QrCode = null;
+            }
+            
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const config = {
+                fps: 15,
+                qrbox: { width: 280, height: 280 },
+                aspectRatio: 1.0,
+                showTorchButton: false,
+                formatsToSupport: [ 
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.QR_CODE
+                ]
+            };
+            
             try {
-                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                const videoElem = document.getElementById('video');
-                videoElem.srcObject = videoStream;
-                await videoElem.play();
-                isScanning = true;
-                requestAnimationFrame(scanLoop);
-            } catch(e) { console.error(e); stopScanner(); }
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    (decodedText) => { if (isScannerActive) handleProcess(decodedText); },
+                    (errorMessage) => { console.warn(errorMessage); }
+                );
+                isScannerActive = true;
+            } catch (err) {
+                console.error("Gagal start kamera:", err);
+                stopScanner();
+            }
         }
         
-        async function scanLoop() {
-            if (!isScanning) return;
-            const videoElem = document.getElementById('video');
-            if(videoElem.readyState < 2) { setTimeout(()=>requestAnimationFrame(scanLoop), 120); return; }
-            try {
-                if ('BarcodeDetector' in window) {
-                    const detector = new BarcodeDetector({ formats: ['code_128', 'qr_code', 'ean_13', 'code_39'] });
-                    const barcodes = await detector.detect(videoElem);
-                    if(barcodes.length > 0) { handleProcess(barcodes[0].rawValue); return; }
-                }
-            } catch(e) {}
-            setTimeout(() => requestAnimationFrame(scanLoop), 100);
+        function stopScanner() {
+            isScannerActive = false;
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(e => console.warn);
+            }
+            html5QrCode = null;
+            document.getElementById('scanner-ui').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        async function toggleTorch() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                try {
+                    const camera = html5QrCode.getRunningTrackCameraCapabilities();
+                    if (camera && camera.torch) {
+                        const newState = !camera.torchStatus;
+                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: newState }] });
+                    }
+                } catch(e) { console.warn("Torch not supported"); }
+            }
         }
         
         function handleProcess(code) {
-            if (!isScanning) return;
+            if (!isScannerActive) return;
             const match = allData.find(r => r.waybill === code);
             if (match) {
                 db.ref(`logistic_data/${match.fbKey}`).update({ _scanned: true });
@@ -468,40 +489,44 @@
                 playAlert('error');
                 showResult(false, { waybill: code });
             }
-            isScanning = false;
+            // Stop scanner setelah scan sukses
+            isScannerActive = false;
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(e => console.warn);
+            }
         }
         
         function showResult(success, data) {
             const modal = document.getElementById('result-modal');
             const iconDiv = document.getElementById('res-status-icon');
             if(success) {
-                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-emerald-500 text-black shadow-xl";
+                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-teal-500 text-black shadow-xl";
                 iconDiv.textContent = '✓';
                 document.getElementById('res-status-text').textContent = 'INPROGRESS • PAKET DITEMUKAN';
                 document.getElementById('res-content').innerHTML = `
                     <div class="space-y-3">
                         <div class="glass-card p-3 rounded-xl">
-                            <p class="text-[8px] font-black text-emerald-400/80 uppercase tracking-wider">Nama Penerima</p>
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Nama Penerima</p>
                             <p class="text-sm font-bold text-white">${data.receiver_name || '-'}</p>
                         </div>
                         <div class="glass-card p-3 rounded-xl">
-                            <p class="text-[8px] font-black text-emerald-400/80 uppercase tracking-wider">Alamat / Kecamatan</p>
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Alamat / Kecamatan</p>
                             <p class="text-[10px] font-medium text-slate-200">${data.receiver_address || 'Alamat tidak tersedia'}</p>
-                            <p class="text-xs font-black text-emerald-400 mt-1">${data.receiver_district || '-'}</p>
+                            <p class="text-xs font-black text-teal-400 mt-1">${data.receiver_district || '-'}</p>
                         </div>
-                        <div class="bg-emerald-500/15 p-3 rounded-xl text-center border border-emerald-500/40">
-                            <p class="text-[9px] font-black text-emerald-400 uppercase tracking-wider">⚡ INPROGRESS</p>
+                        <div class="bg-teal-500/15 p-3 rounded-xl text-center border border-teal-500/40">
+                            <p class="text-[9px] font-black text-teal-400 uppercase tracking-wider">⚡ INPROGRESS</p>
                             <p class="text-xs font-black text-white mt-1">WAJIB DIKIRIM HARI INI !</p>
                         </div>
                     </div>
                 `;
             } else {
-                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-rose-500 text-white shadow-xl";
+                iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-amber-500 text-black shadow-xl";
                 iconDiv.textContent = '✕';
                 document.getElementById('res-status-text').textContent = 'PAKET TIDAK TERDAFTAR';
                 document.getElementById('res-content').innerHTML = `
                     <div class="text-center py-5">
-                        <p class="text-rose-400 font-black text-base">BUKAN INPROGRESS</p>
+                        <p class="text-amber-400 font-black text-base">BUKAN INPROGRESS</p>
                         <p class="text-[9px] text-slate-400 mt-2">Resi tidak ada dalam database staging.<br>Periksa kembali atau hubungi admin.</p>
                     </div>
                 `;
@@ -517,15 +542,8 @@
             modal.classList.remove('active');
             setTimeout(() => {
                 document.getElementById('result-sheet').classList.add('hidden');
-                if(!document.getElementById('scanner-ui').classList.contains('hidden')) startScanner();
+                // Jangan restart scanner otomatis, biar user klik tombol scan lagi
             }, 250);
-        }
-        
-        function stopScanner() {
-            isScanning = false;
-            if(videoStream) videoStream.getTracks().forEach(t => t.stop());
-            document.getElementById('scanner-ui').classList.add('hidden');
-            document.body.style.overflow = '';
         }
         
         function toggleManualInput(show) {
@@ -536,13 +554,6 @@
         function processManualEntry() {
             const val = document.getElementById('manual-field').value.trim();
             if(val) { toggleManualInput(false); handleProcess(val); document.getElementById('manual-field').value = ''; }
-        }
-        function toggleTorch() {
-            const track = videoStream?.getVideoTracks()[0];
-            if(track && track.getCapabilities().torch) {
-                const newState = !track.getSettings().torch;
-                track.applyConstraints({ advanced: [{ torch: newState }] });
-            }
         }
         function toggleSheet(id, show) {
             const el = document.getElementById(id);
@@ -582,9 +593,7 @@
         db.ref('logistic_data').on('value', snap => {
             const val = snap.val();
             allData = val ? Object.keys(val).map(k => ({ fbKey: k, ...val[k] })) : [];
-            renderStats();
-            renderList();
-            renderDistricts();
+            renderStats(); renderList(); renderDistricts();
         });
         
         setTimeout(() => { document.getElementById('stat-total-card').classList.add('filter-active'); }, 100);
@@ -593,6 +602,9 @@
         window.toggleDistrict = toggleDistrict;
         window.clearDistrictFilter = clearDistrictFilter;
         window.resetAllFilters = resetAllFilters;
+        window.startScanner = startScanner;
+        window.stopScanner = stopScanner;
+        window.toggleTorch = toggleTorch;
     </script>
 </body>
 </html>

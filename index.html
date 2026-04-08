@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Html5QrCode (ZXing) untuk scanning barcode kecil yang lebih tajam -->
+    <!-- Html5QrCode (ZXing) -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     
     <!-- Font Plus Jakarta -->
@@ -27,7 +27,6 @@
             background: #0A0C12;
             background-image: radial-gradient(circle at 30% 10%, rgba(20, 184, 166, 0.05) 0%, transparent 60%);
         }
-        /* Glassmorphism Premium */
         .glass-premium {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(16px);
@@ -45,7 +44,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Stat Card - BISA DIKLIK */
         .stat-card {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(20, 184, 166, 0.02));
             border-bottom: 2px solid rgba(20, 184, 166, 0.5);
@@ -59,7 +57,7 @@
             background: rgba(20, 184, 166, 0.15);
         }
 
-        /* FIX SCANNER UI */
+        /* Scanner UI */
         #qr-reader {
             border: none !important;
             background: black !important;
@@ -69,7 +67,6 @@
             width: 100% !important;
             height: 100% !important;
         }
-        /* Frame scanner yang sinkron */
         .scan-frame-glow {
             position: absolute;
             top: 50%;
@@ -155,7 +152,7 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- HEADER PREMIUM -->
+    <!-- HEADER -->
     <div class="shrink-0 relative z-30 pt-6 pb-2 px-6 border-b border-white/5 bg-gradient-to-b from-[#0A0C12] to-transparent">
         <div class="flex justify-between items-end">
             <div>
@@ -220,12 +217,9 @@
     <!-- SCANNER UI -->
     <div id="scanner-ui" class="fixed inset-0 z-[100] bg-black hidden">
         <div id="qr-reader" style="width: 100%; height: 100%;"></div>
-        
-        <!-- Frame Overlay -->
         <div class="scan-frame-glow pointer-events-none">
             <div class="scan-line-premium"></div>
         </div>
-
         <div class="absolute top-10 left-4 right-4 flex justify-between z-[110]">
             <button onclick="stopScanner()" class="w-10 h-10 glass-premium rounded-xl flex items-center justify-center text-white text-lg">✕</button>
             <div class="flex gap-2">
@@ -233,7 +227,6 @@
                 <button id="torch-btn" onclick="toggleTorch()" class="w-10 h-10 glass-premium rounded-xl text-lg flex items-center justify-center">🔦</button>
             </div>
         </div>
-        
         <div class="absolute bottom-14 left-0 right-0 text-center z-[110]">
             <p class="text-[9px] font-bold text-teal-400 tracking-[2px] bg-black/60 px-4 py-2 rounded-full inline-block backdrop-blur-md">ARAHKAN KE BARCODE / QR</p>
         </div>
@@ -251,15 +244,15 @@
         </div>
     </div>
 
-    <!-- MODAL RESULT -->
+    <!-- MODAL RESULT - DETAIL LENGKAP -->
     <div id="result-sheet" class="fixed inset-0 z-[130] bg-black/85 hidden flex items-center justify-center p-5" onclick="closeResult()">
         <div id="result-modal" class="w-full max-w-md modal-premium rounded-3xl p-6 border border-white/20" onclick="event.stopPropagation()">
             <div id="res-status-icon" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-2xl"></div>
             <div class="text-center mb-5">
                 <p id="res-status-text" class="text-[9px] font-black uppercase tracking-[3px] text-teal-400/90 mb-2"></p>
-                <h2 id="res-awb" class="text-xl font-black font-mono-custom tracking-tighter break-all bg-black/50 inline-block px-4 py-2 rounded-full text-white border border-white/20 shadow-md">-</h2>
+                <h2 id="res-awb" class="text-lg font-black font-mono-custom tracking-tighter break-all bg-black/50 inline-block px-4 py-2 rounded-full text-white border border-white/20 shadow-md">-</h2>
             </div>
-            <div id="res-content" class="space-y-4 mb-6"></div>
+            <div id="res-content" class="space-y-3 mb-6"></div>
             <button onclick="closeResult()" class="w-full py-4 bg-white text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all shadow-lg">LANJUTKAN SCAN</button>
         </div>
     </div>
@@ -319,6 +312,7 @@
         let statusFilter = 'all';
         let html5QrCode = null;
         let isScannerActive = false;
+        let currentTorchState = false;
         
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playAlert(type) {
@@ -339,7 +333,6 @@
             }
         }
         
-        // Filter logic
         function getFilteredData() {
             let filtered = [...allData];
             if(selectedDistricts.size > 0) filtered = filtered.filter(item => selectedDistricts.has(item.receiver_district));
@@ -416,10 +409,8 @@
             setStatusFilter('all');
         }
         
-        // KLIK STAT CARD
         function onStatClick(filterType) {
             setStatusFilter(filterType);
-            // Update active highlight pada card
             document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('filter-active'));
             if(filterType === 'all') document.getElementById('stat-total-card').classList.add('filter-active');
             else if(filterType === 'scanned') document.getElementById('stat-scanned-card').classList.add('filter-active');
@@ -435,7 +426,7 @@
             else { districtBadge.classList.remove('hidden'); districtBadge.textContent = `${selectedDistricts.size} kecamatan`; }
         }
 
-        // SCANNER LOGIC
+        // SCANNER LOGIC dengan FLASH/TORCH yang berfungsi
         async function startScanner() {
             const scannerUi = document.getElementById('scanner-ui');
             scannerUi.classList.remove('hidden');
@@ -461,6 +452,7 @@
                     () => {}
                 );
                 isScannerActive = true;
+                currentTorchState = false;
             } catch (err) {
                 console.error("Kamera Error:", err);
                 stopScanner();
@@ -470,11 +462,34 @@
         async function stopScanner() {
             isScannerActive = false;
             if (html5QrCode) {
-                try { await html5QrCode.stop(); } catch(e) {}
+                try { 
+                    // Matikan torch sebelum stop
+                    if (currentTorchState) {
+                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: false }] });
+                        currentTorchState = false;
+                    }
+                    await html5QrCode.stop(); 
+                } catch(e) {}
                 html5QrCode = null;
             }
             document.getElementById('scanner-ui').classList.add('hidden');
             document.body.style.overflow = '';
+        }
+
+        // TORCH / FLASH yang berfungsi penuh
+        async function toggleTorch() {
+            if (!html5QrCode || !isScannerActive) return;
+            try {
+                const newTorchState = !currentTorchState;
+                await html5QrCode.applyVideoConstraints({ advanced: [{ torch: newTorchState }] });
+                currentTorchState = newTorchState;
+                // Update icon visual
+                const torchBtn = document.getElementById('torch-btn');
+                if (torchBtn) torchBtn.style.opacity = currentTorchState ? '1' : '0.7';
+            } catch (err) {
+                console.warn("Torch tidak didukung:", err);
+                alert("Perangkat tidak mendukung flash/senter");
+            }
         }
 
         function handleProcess(code) {
@@ -491,6 +506,7 @@
             }
         }
         
+        // RESULT DETAIL LENGKAP (resi, nama, alamat, kecamatan)
         function showResult(success, data) {
             const modal = document.getElementById('result-modal');
             const iconDiv = document.getElementById('res-status-icon');
@@ -501,15 +517,23 @@
                 document.getElementById('res-content').innerHTML = `
                     <div class="space-y-3">
                         <div class="glass-card p-3 rounded-xl">
-                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Penerima</p>
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">NOMOR RESI</p>
+                            <p class="text-sm font-mono-custom font-bold text-white break-all">${data.waybill || '-'}</p>
+                        </div>
+                        <div class="glass-card p-3 rounded-xl">
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">NAMA PENERIMA</p>
                             <p class="text-sm font-bold text-white">${data.receiver_name || '-'}</p>
                         </div>
                         <div class="glass-card p-3 rounded-xl">
-                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">Kecamatan</p>
-                            <p class="text-xs font-black text-teal-400 mt-1">${data.receiver_district || '-'}</p>
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">ALAMAT LENGKAP</p>
+                            <p class="text-xs font-medium text-slate-200">${data.receiver_address || 'Alamat tidak tersedia'}</p>
+                        </div>
+                        <div class="glass-card p-3 rounded-xl">
+                            <p class="text-[8px] font-black text-teal-400/80 uppercase tracking-wider">KECAMATAN / DISTRICT</p>
+                            <p class="text-sm font-black text-teal-400">${data.receiver_district || '-'}</p>
                         </div>
                         <div class="bg-teal-500/20 p-3 rounded-xl text-center border border-teal-500/40">
-                            <p class="text-[9px] font-black text-teal-400 uppercase">⚡ INPROGRESS</p>
+                            <p class="text-[9px] font-black text-teal-400 uppercase">⚡ STATUS INPROGRESS</p>
                             <p class="text-xs font-black text-white mt-1">WAJIB DIKIRIM HARI INI !</p>
                         </div>
                     </div>`;
@@ -517,7 +541,12 @@
                 iconDiv.className = "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-4xl mb-4 bg-rose-500 text-white shadow-xl";
                 iconDiv.textContent = '✕';
                 document.getElementById('res-status-text').textContent = 'PAKET TIDAK TERDAFTAR';
-                document.getElementById('res-content').innerHTML = `<p class="text-[10px] text-slate-400 text-center">Resi tidak ditemukan di database staging.</p>`;
+                document.getElementById('res-content').innerHTML = `
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <p class="text-rose-400 font-black text-base">BUKAN INPROGRESS</p>
+                        <p class="text-[10px] text-slate-400 mt-2">Resi <span class="font-mono-custom text-teal-300">${data.waybill}</span> tidak ditemukan di database staging.</p>
+                        <p class="text-[9px] text-slate-500 mt-3">Periksa kembali atau hubungi admin.</p>
+                    </div>`;
             }
             document.getElementById('res-awb').textContent = data.waybill;
             document.getElementById('result-sheet').classList.remove('hidden');
@@ -550,18 +579,6 @@
                 handleProcess(val); 
                 document.getElementById('manual-field').value = '';
                 toggleManualInput(false);
-            }
-        }
-
-        async function toggleTorch() {
-            if (html5QrCode && isScannerActive) {
-                try {
-                    const track = html5QrCode.getRunningTrackCameraCapabilities();
-                    if (track && track.torch) {
-                        const current = html5QrCode.getRunningTrackCameraSettings().torch;
-                        await html5QrCode.applyVideoConstraints({ advanced: [{ torch: !current }] });
-                    }
-                } catch(e) {}
             }
         }
 
@@ -607,7 +624,7 @@
             alert(`✅ Upload sukses! ${Object.keys(newData).length} resi terupdate.`);
         }
 
-        // Event listener untuk stat card klik
+        // Event listener untuk stat card
         document.getElementById('stat-total-card').addEventListener('click', () => onStatClick('all'));
         document.getElementById('stat-scanned-card').addEventListener('click', () => onStatClick('scanned'));
         document.getElementById('stat-pending-card').addEventListener('click', () => onStatClick('pending'));
@@ -619,7 +636,6 @@
             updateAllUI();
         });
         
-        // Set default active highlight
         setTimeout(() => { document.getElementById('stat-total-card').classList.add('filter-active'); }, 100);
     </script>
 </body>
